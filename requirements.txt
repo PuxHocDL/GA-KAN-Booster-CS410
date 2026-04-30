@@ -1,0 +1,15 @@
+torch
+swig
+gymnasium[classic-control,box2d]
+scikit-learn
+pandas
+matplotlib
+tqdm
+ucimlrepo
+moviepy
+pykan
+pyyaml
+sympy
+argparse
+huggingface_hub
+python-dotenv
