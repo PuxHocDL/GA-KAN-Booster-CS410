@@ -11,8 +11,6 @@ ENV/
 env/
 
 # Data & Results
-experiments/results/
-experiments/results_rl/
 experiments/results.zip
 
 # IDEs

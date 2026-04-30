@@ -1,0 +1,15 @@
+Dataset,Model,Score
+Iris,SVM,1.0
+Iris,RF,1.0
+Iris,MLP,0.6333333333333333
+Iris,KNN,1.0
+Iris,"Standard KAN [d, 2d+1, C]",0.7666666666666667
+Iris,"Standard KAN [d, 5, 5, 5, C]",0.3
+Iris,GA-KAN,1.0
+Wine,SVM,1.0
+Wine,RF,1.0
+Wine,MLP,0.6111111111111112
+Wine,KNN,0.9444444444444444
+Wine,"Standard KAN [d, 2d+1, C]",1.0
+Wine,"Standard KAN [d, 5, 5, 5, C]",0.9722222222222222
+Wine,GA-KAN,1.0

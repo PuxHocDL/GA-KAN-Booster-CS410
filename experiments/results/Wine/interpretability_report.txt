@@ -1,0 +1,15 @@
+Dataset: Wine
+Task Type: classification
+Best Fitness (Loss): 0.0107
+Optimal Depth: 2
+Optimal Grid Value: 6
+
+Feature Scores: tensor([0.1482, 0.0759, 0.0272, 0.1262, 0.1072, 0.1220, 0.0571, 0.1315, 0.1700,
+        0.2461, 0.1602, 0.0904, 0.2525], device='cuda:0',
+       grad_fn=<MeanBackward1>)
+
+Symbolic Formulas Extracted:
+Layer 0:
+[['0', 'x', 'sin', 'x', '0', '0', '0', 'x', 'x', 'sin', '0', '0', 'x'], ['0', '0', 'x', '0', '0', 'x', 'x', 'cos', 'x', '0', 'x', '0', 'sin'], ['cos', '0', '0', '0', 'x', 'cos', '0', '0', '0', 'x', 'x', '0', '0'], ['0', '0', 'x', '0', '0', 'x', 'x', 'sin', '0', 'x', '0', 'x', '0'], ['0', '0', '0', '0', 'x', '0', '0', '0', '0', '0', '0', 'x^2', '0']]
+Layer 1:
+[['x', '0', '0', '0', '0'], ['0', '0', 'x', '0', '0'], ['x', 'x', '0', 'x', '0']]
