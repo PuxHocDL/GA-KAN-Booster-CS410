@@ -12,7 +12,13 @@ env/
 
 # Data & Results
 experiments/results.zip
+m-gpux-workspace/
+model/
+*.pth
 
 # IDEs
 .vscode/
 .idea/
+
+# Modal
+modal_runner.py

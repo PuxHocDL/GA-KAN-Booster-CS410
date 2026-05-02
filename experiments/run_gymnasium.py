@@ -21,18 +21,44 @@ from ga_kan.fitness import build_optimal_model
 from ga_kan.fitness_rl import evaluate_fitness_rl, train_rl_vectorized
 
 
+_worker_envs = {}
+
+def _init_worker(env_name, n_inner_envs):
+    """
+    Initialize a global environment in each worker process to avoid
+    the overhead of creating/closing it for every individual.
+    """
+    global _worker_envs
+    if env_name not in _worker_envs:
+        try:
+            envs = gym.make_vec(env_name, num_envs=n_inner_envs, vectorization_mode="sync")
+        except TypeError:
+            envs = gym.make_vec(env_name, num_envs=n_inner_envs)
+        envs = gym.wrappers.vector.NormalizeObservation(envs)
+        _worker_envs[env_name] = envs
+
 def _cpu_worker_eval(args):
     """
-    Process-pool worker: evaluate a single chromosome on CPU with its own
-    small vectorized env. Each process pins torch to 1 thread so that
-    `pop_size` processes do not oversubscribe the cores.
+    Process-pool worker: evaluate a single chromosome on CPU using
+    a persistent environment.
     """
     individual, env_name, n_inner_envs = args
     try:
         torch.set_num_threads(1)
     except Exception:
         pass
-    return evaluate_fitness_rl(individual, env_name, N_steps=n_inner_envs, device='cpu', vectorization_mode='sync')
+    
+    # Ensure the worker environment is ready
+    if env_name not in _worker_envs:
+        _init_worker(env_name, n_inner_envs)
+        
+    return evaluate_fitness_rl(
+        individual, 
+        env_name, 
+        N_steps=n_inner_envs, 
+        device='cpu', 
+        envs=_worker_envs[env_name]
+    )
 
 
 class GAKANOptimizerRL(GAKANOptimizer):
@@ -59,6 +85,8 @@ class GAKANOptimizerRL(GAKANOptimizer):
             executor = concurrent.futures.ProcessPoolExecutor(
                 max_workers=self.num_workers,
                 mp_context=ctx,
+                initializer=_init_worker,
+                initargs=(env_name, self.n_inner_envs)
             )
 
         # On GPU path we still reuse one AsyncVectorEnv across the whole run.
@@ -68,6 +96,7 @@ class GAKANOptimizerRL(GAKANOptimizer):
                 shared_envs = gym.make_vec(env_name, num_envs=self.N_steps, vectorization_mode="async")
             except TypeError:
                 shared_envs = gym.make_vec(env_name, num_envs=self.N_steps)
+            shared_envs = gym.wrappers.vector.NormalizeObservation(shared_envs)
 
         pbar = tqdm(range(self.max_gen), desc=f"GA Optimization ({env_name})", unit="gen")
         try:
@@ -183,9 +212,10 @@ def main():
         
         opt = torch.optim.Adam(best_model.parameters(), lr=0.01)
         train_envs = gym.make_vec(env_name, num_envs=10)
+        train_envs = gym.wrappers.vector.NormalizeObservation(train_envs)
         
         final_rewards = []
-        for ep in range(5): # 5 opt steps on batches of 10 episodes
+        for ep in range(50): # 50 opt steps on batches of 10 episodes
             reward = train_rl_vectorized(best_model, train_envs, opt, device=device)
             final_rewards.append(reward)
             
@@ -211,6 +241,8 @@ def main():
         print(f"Recording gameplay video for {env_name}...")
         try:
             record_env = gym.make(env_name, render_mode="rgb_array")
+            # Apply normalization to the record env as well
+            record_env = gym.wrappers.NormalizeObservation(record_env)
             record_env = gym.wrappers.RecordVideo(record_env, video_folder=dataset_dir, name_prefix=f"{env_name}_gameplay", episode_trigger=lambda x: True)
             
             state, _ = record_env.reset()

@@ -74,6 +74,25 @@ class GAKANCrossover(CrossoverStrategy):
                 
         return Chromosome(config, bits=c1_bits), Chromosome(config, bits=c2_bits)
 
+class UniformCrossover(CrossoverStrategy):
+    def __init__(self, crossover_rate=0.5):
+        """
+        crossover_rate: probability of swapping each bit position.
+        """
+        self.crossover_rate = crossover_rate
+
+    def crossover(self, parent1: Chromosome, parent2: Chromosome) -> Tuple[Chromosome, Chromosome]:
+        config = parent1.config
+
+        c1_bits = np.copy(parent1.bits)
+        c2_bits = np.copy(parent2.bits)
+
+        for i in range(len(c1_bits)):
+            if random.random() < self.crossover_rate:
+                c1_bits[i], c2_bits[i] = c2_bits[i], c1_bits[i]
+
+        return Chromosome(config, bits=c1_bits), Chromosome(config, bits=c2_bits)
+
 # ===============================
 # Mutation Strategy
 # ===============================

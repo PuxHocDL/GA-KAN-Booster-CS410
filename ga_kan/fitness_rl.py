@@ -114,9 +114,19 @@ def evaluate_fitness_rl(individual: Chromosome, env_name: str, N_steps=10, devic
         except TypeError:
             # Older gymnasium API
             envs = gym.make_vec(env_name, num_envs=N_steps)
+        envs = gym.wrappers.vector.NormalizeObservation(envs)
 
     try:
-        avg_reward = train_rl_vectorized(model, envs, optimizer, device=device)
+        # Tăng số bước học (Credit Assignment):
+        # Mạng KAN cần thời gian để tối ưu trọng số (RL) cho kiến trúc (GA).
+        # Chạy 5 lần cập nhật và lấy giá trị lớn nhất làm fitness.
+        n_train_iterations = 5
+        rewards = []
+        for _ in range(n_train_iterations):
+            r = train_rl_vectorized(model, envs, optimizer, device=device)
+            rewards.append(r)
+            
+        avg_reward = max(rewards)
     except Exception:
         if own_envs:
             envs.close()
