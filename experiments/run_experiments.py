@@ -31,10 +31,14 @@ def main():
     parser.add_argument('--datasets', type=str, default=None, help="Comma-separated dataset names to run, e.g. Iris,Wine")
     parser.add_argument('--pop-size', type=int, default=None)
     parser.add_argument('--max-gen', type=int, default=None)
-    parser.add_argument('--n-steps', type=int, default=None, help="Training steps per GA fitness evaluation")
-    parser.add_argument('--final-steps', type=int, default=None, help="LBFGS steps for the final GA-KAN model")
+    parser.add_argument('--n-steps', type=int, default=None, help="Adam steps per GA fitness evaluation")
+    parser.add_argument('--final-steps', type=int, default=None, help="Final training steps for the best GA-KAN model")
+    parser.add_argument('--final-optimizer', choices=['adam', 'lbfgs'], default='adam')
+    parser.add_argument('--final-lr', type=float, default=None)
+    parser.add_argument('--kan-baseline-steps', type=int, default=None, help="Training steps for Standard KAN baselines (default: final_steps)")
     parser.add_argument('--d-max', type=int, default=5, help="Maximum GA-KAN depth to search")
     parser.add_argument('--u-max', type=int, default=10, help="Maximum hidden units per GA-KAN hidden layer")
+    parser.add_argument('--run-name', type=str, default=None, help="Optional subdirectory under experiments/results to avoid overwriting another run")
     parser.add_argument('--cpu-workers', type=int, default=None, help="Number of parallel workers for CPU GA search (default: min(pop_size, cpu_count))")
     parser.add_argument('--cpu-torch-threads', type=int, default=1, help="PyTorch intra-op threads to use during parallel CPU GA search")
     parser.add_argument('--parallel-backend', choices=['auto', 'process', 'thread'], default='auto')
@@ -57,7 +61,7 @@ def main():
     device = args.device
     print(f"Using device: {device}")
     
-    extended_datasets  = [
+    legacy_datasets = [
         ('Iris', lambda: load_uci_classification('iris')),
         ('Wine', lambda: load_uci_classification('wine')),
         ('Raisin', lambda: load_uci_classification('raisin')),
@@ -67,7 +71,7 @@ def main():
         ('Toy2_Eq_6b', get_toy_dataset_2),
     ]
 
-    legacy_datasets= [
+    extended_datasets = [
         # Classification - sklearn
         ('Iris', lambda: load_uci_classification('iris')),
         ('Wine', lambda: load_uci_classification('wine')),
@@ -108,17 +112,22 @@ def main():
         N_steps = args.n_steps or 12
 
     final_steps = args.final_steps if args.final_steps is not None else (12 if args.fast else 50)
+    kan_baseline_steps = args.kan_baseline_steps if args.kan_baseline_steps is not None else final_steps
     depth_bits = max(1, math.ceil(math.log2(args.d_max)))
 
     print(
         f"GA config: pop_size={pop_size}, max_gen={max_gen}, "
         f"N_steps={N_steps}, final_steps={final_steps}, "
+        f"kan_baseline_steps={kan_baseline_steps}, "
+        f"final_optimizer={args.final_optimizer}, "
         f"d_max={args.d_max}, u_max={args.u_max}, "
         f"interpretability={not args.skip_interpretability}, datasets={len(datasets)}"
     )
         
     results = []
     base_output_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'results')
+    if args.run_name:
+        base_output_dir = os.path.join(base_output_dir, args.run_name)
     os.makedirs(base_output_dir, exist_ok=True)
     
     for name, loader in datasets:
@@ -180,21 +189,33 @@ def main():
         
         # Evaluate GA-KAN Best Individual
         best_model = build_optimal_model(best_ind, device=train_device)
-        print(f"Training final GA-KAN architecture (LBFGS, {final_steps} steps)...")
-        opt = torch.optim.LBFGS(best_model.parameters(), lr=0.1)
         if task_type == 'classification':
             criterion = torch.nn.CrossEntropyLoss()
         else:
             criterion = torch.nn.MSELoss()
-            
-        for t in range(final_steps):
-            def closure():
+
+        if args.final_optimizer == 'adam':
+            final_lr = args.final_lr if args.final_lr is not None else 1e-2
+            print(f"Training final GA-KAN architecture (Adam, {final_steps} steps, lr={final_lr})...")
+            opt = torch.optim.Adam(best_model.parameters(), lr=final_lr)
+            for t in range(final_steps):
                 opt.zero_grad()
                 pred = best_model(D_train['train_input'])
                 loss = criterion(pred, D_train['train_label'])
                 loss.backward()
-                return loss
-            opt.step(closure)
+                opt.step()
+        else:
+            final_lr = args.final_lr if args.final_lr is not None else 0.1
+            print(f"Training final GA-KAN architecture (LBFGS, {final_steps} steps, lr={final_lr})...")
+            opt = torch.optim.LBFGS(best_model.parameters(), lr=final_lr)
+            for t in range(final_steps):
+                def closure():
+                    opt.zero_grad()
+                    pred = best_model(D_train['train_input'])
+                    loss = criterion(pred, D_train['train_label'])
+                    loss.backward()
+                    return loss
+                opt.step(closure)
             
         with torch.no_grad():
             preds = best_model(D_val['test_input'])
@@ -255,12 +276,12 @@ def main():
             
         # Standard KAN configs
         # config 1: [d, 2d+1, C]
-        res_kan1 = run_standard_kan([n_features, 2*n_features+1, m_out], D_train, D_val, task_type, N_steps, train_device)
+        res_kan1 = run_standard_kan([n_features, 2*n_features+1, m_out], D_train, D_val, task_type, kan_baseline_steps, train_device)
         score1 = res_kan1['Accuracy'] if task_type == 'classification' else res_kan1['MSE']
         results.append({'Dataset': name, 'Model': 'Standard KAN [d, 2d+1, C]', 'Score': score1})
         
         # config 2: [d, 5, 5, 5, C]
-        res_kan2 = run_standard_kan([n_features, 5, 5, 5, m_out], D_train, D_val, task_type, N_steps, train_device)
+        res_kan2 = run_standard_kan([n_features, 5, 5, 5, m_out], D_train, D_val, task_type, kan_baseline_steps, train_device)
         score2 = res_kan2['Accuracy'] if task_type == 'classification' else res_kan2['MSE']
         results.append({'Dataset': name, 'Model': 'Standard KAN [d, 5, 5, 5, C]', 'Score': score2})
         
