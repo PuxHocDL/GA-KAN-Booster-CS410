@@ -19,7 +19,8 @@ class TournamentSelection(SelectionStrategy):
     def select(self, population: List[Chromosome], fitnesses: List[float], num_parents: int) -> List[Chromosome]:
         parents = []
         for _ in range(num_parents):
-            indices = np.random.choice(len(population), size=self.tournament_size, replace=False)
+            tournament_size = min(self.tournament_size, len(population))
+            indices = np.random.choice(len(population), size=tournament_size, replace=False)
             best_idx = min(indices, key=lambda idx: fitnesses[idx])
             parents.append(population[best_idx])
         return parents

@@ -62,6 +62,9 @@ TASK_CONFIGS = {
         'd_max': 4,
         'u_max': 16,
         'degree_max': 10,
+        # Novelty Search enabled for deceptive environment
+        'novelty_weight': 0.3,
+        'novelty_k': 5,
     },
     'LunarLander-v3': {
         'obs_dim': 8, 'act_dim': 4,
@@ -74,6 +77,36 @@ TASK_CONFIGS = {
         'd_max': 4,
         'u_max': 24,
         'degree_max': 10,
+    },
+    'Pendulum-v1': {
+        'obs_dim': 3, 'act_dim': 5,
+        'max_steps': 200,
+        'n_train_iterations': 15,
+        'n_train_iterations_elite': 40,
+        'pop_size': 30,
+        'max_gen': 25,
+        'N_steps': 16,
+        'd_max': 4,
+        'u_max': 12,
+        'degree_max': 10,
+        # Novelty Search for deceptive swing-up
+        'novelty_weight': 0.3,
+        'novelty_k': 5,
+    },
+    'LunarLander-Wind': {
+        'obs_dim': 8, 'act_dim': 4,
+        'max_steps': 500,
+        'n_train_iterations': 10,
+        'n_train_iterations_elite': 30,
+        'pop_size': 28,
+        'max_gen': 20,
+        'N_steps': 12,
+        'd_max': 4,
+        'u_max': 24,
+        'degree_max': 10,
+        # Novelty to help with wind randomness
+        'novelty_weight': 0.15,
+        'novelty_k': 5,
     },
 }
 
@@ -100,6 +133,8 @@ def setup_logger(env_name, output_dir):
 def evaluate_final_policy(individual: SpectralChromosome, env_name: str, 
                           n_episodes=100, device='cpu'):
     """Evaluate the final policy over many episodes to get reliable statistics."""
+    from spectral_kan.fitness_rl import DiscretePendulumWrapper, PendulumTerminationWrapper
+    
     model = build_spectral_model(individual, device=device)
     if model is None:
         return {'mean': 0, 'std': 0, 'min': 0, 'max': 0}
@@ -115,7 +150,15 @@ def evaluate_final_policy(individual: SpectralChromosome, env_name: str,
     episode_rewards = []
     
     for _ in range(n_episodes):
-        env = gym.make(env_name)
+        if 'Pendulum' in env_name:
+            env = gym.make('Pendulum-v1')
+            env = DiscretePendulumWrapper(env)
+            env = PendulumTerminationWrapper(env)
+        elif env_name == 'LunarLander-Wind':
+            env = gym.make('LunarLander-v3', enable_wind=True, wind_power=15.0, turbulence_power=1.5)
+        else:
+            env = gym.make(env_name)
+        
         state, _ = env.reset()
         total_reward = 0.0
         done = False
@@ -145,6 +188,8 @@ def evaluate_final_policy(individual: SpectralChromosome, env_name: str,
 def record_video(individual: SpectralChromosome, env_name: str, output_dir: str,
                  n_episodes=3, device='cpu'):
     """Record video of the best policy playing the environment."""
+    from spectral_kan.fitness_rl import DiscretePendulumWrapper
+    
     try:
         import moviepy  # noqa: F401
     except ImportError:
@@ -166,10 +211,19 @@ def record_video(individual: SpectralChromosome, env_name: str, output_dir: str,
     video_dir = os.path.join(output_dir, 'videos')
     os.makedirs(video_dir, exist_ok=True)
     
-    env = gym.make(env_name, render_mode='rgb_array')
+    # Create appropriate environment
+    if 'Pendulum' in env_name:
+        env = gym.make('Pendulum-v1', render_mode='rgb_array')
+        env = DiscretePendulumWrapper(env)
+    elif env_name == 'LunarLander-Wind':
+        env = gym.make('LunarLander-v3', render_mode='rgb_array',
+                       enable_wind=True, wind_power=15.0, turbulence_power=1.5)
+    else:
+        env = gym.make(env_name, render_mode='rgb_array')
+    
     env = gym.wrappers.RecordVideo(
         env, video_dir,
-        episode_trigger=lambda ep: True,  # Record all episodes
+        episode_trigger=lambda ep: True,
         name_prefix=f'spectral_{env_name}'
     )
     
@@ -270,6 +324,9 @@ def run_single_experiment(env_name: str, output_dir: str, num_workers=None):
     )
     
     # Build optimizer
+    novelty_weight = cfg.get('novelty_weight', 0.0)
+    novelty_k = cfg.get('novelty_k', 5)
+    
     optimizer = SpectralGAOptimizer(
         config=spectral_config,
         selection_strategy=selection,
@@ -285,7 +342,12 @@ def run_single_experiment(env_name: str, output_dir: str, num_workers=None):
         dense_init=True,
         num_workers=num_workers,
         elitism_count=2,
+        novelty_weight=novelty_weight,
+        novelty_k=novelty_k,
     )
+    
+    if novelty_weight > 0:
+        logger.info(f"Novelty Search ENABLED: weight={novelty_weight}, k={novelty_k}")
     
     # Run GA
     start_time = time.time()

@@ -1,6 +1,7 @@
 import argparse
 import sys
 import os
+import math
 import torch
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -25,13 +26,48 @@ from experiments.baselines import run_sklearn_baseline, run_standard_kan
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--fast', action='store_true', help="Run with small pop/gen for testing")
-    parser.add_argument('--device', type=str, default='cuda' if torch.cuda.is_available() else 'cpu')
+    parser.add_argument('--device', type=str, default='cpu')
+    parser.add_argument('--all-datasets', action='store_true', help="Run the extended dataset suite instead of the original 7 datasets")
+    parser.add_argument('--datasets', type=str, default=None, help="Comma-separated dataset names to run, e.g. Iris,Wine")
+    parser.add_argument('--pop-size', type=int, default=None)
+    parser.add_argument('--max-gen', type=int, default=None)
+    parser.add_argument('--n-steps', type=int, default=None, help="Training steps per GA fitness evaluation")
+    parser.add_argument('--final-steps', type=int, default=None, help="LBFGS steps for the final GA-KAN model")
+    parser.add_argument('--d-max', type=int, default=5, help="Maximum GA-KAN depth to search")
+    parser.add_argument('--u-max', type=int, default=10, help="Maximum hidden units per GA-KAN hidden layer")
+    parser.add_argument('--cpu-workers', type=int, default=None, help="Number of parallel workers for CPU GA search (default: min(pop_size, cpu_count))")
+    parser.add_argument('--cpu-torch-threads', type=int, default=1, help="PyTorch intra-op threads to use during parallel CPU GA search")
+    parser.add_argument('--parallel-backend', choices=['auto', 'process', 'thread'], default='auto')
+    parser.add_argument(
+        '--skip-interpretability',
+        dest='skip_interpretability',
+        action='store_true',
+        default=True,
+        help="Skip auto_symbolic and architecture plotting (default)"
+    )
+    parser.add_argument(
+        '--interpretability',
+        dest='skip_interpretability',
+        action='store_false',
+        help="Run auto_symbolic and architecture plotting"
+    )
+    parser.add_argument('--no-upload', action='store_true', help="Skip zipping and pushing results to Hugging Face")
     args = parser.parse_args()
     
     device = args.device
     print(f"Using device: {device}")
     
-    datasets = [
+    extended_datasets  = [
+        ('Iris', lambda: load_uci_classification('iris')),
+        ('Wine', lambda: load_uci_classification('wine')),
+        ('Raisin', lambda: load_uci_classification('raisin')),
+        ('Rice', lambda: load_uci_classification('rice')),
+        ('WDBC', lambda: load_uci_classification('wdbc')),
+        ('Toy1_Eq_6a', get_toy_dataset_1),
+        ('Toy2_Eq_6b', get_toy_dataset_2),
+    ]
+
+    legacy_datasets= [
         # Classification - sklearn
         ('Iris', lambda: load_uci_classification('iris')),
         ('Wine', lambda: load_uci_classification('wine')),
@@ -54,15 +90,32 @@ def main():
         # Regression - real
         ('Diabetes', load_diabetes_regression),
     ]
+
+    datasets = extended_datasets if args.all_datasets else legacy_datasets
+    if args.datasets:
+        requested = {name.strip().lower() for name in args.datasets.split(',') if name.strip()}
+        datasets = [(name, loader) for name, loader in datasets if name.lower() in requested]
+        if not datasets:
+            raise ValueError(f"No matching datasets found for --datasets={args.datasets}")
     
     if args.fast:
-        pop_size = 10
-        max_gen = 5
-        N_steps = 5
+        pop_size = args.pop_size or 10
+        max_gen = args.max_gen or 5
+        N_steps = args.n_steps or 5
     else:
-        pop_size = 30
-        max_gen = 30
-        N_steps = 30
+        pop_size = args.pop_size or 30
+        max_gen = args.max_gen or 30
+        N_steps = args.n_steps or 12
+
+    final_steps = args.final_steps if args.final_steps is not None else (12 if args.fast else 50)
+    depth_bits = max(1, math.ceil(math.log2(args.d_max)))
+
+    print(
+        f"GA config: pop_size={pop_size}, max_gen={max_gen}, "
+        f"N_steps={N_steps}, final_steps={final_steps}, "
+        f"d_max={args.d_max}, u_max={args.u_max}, "
+        f"interpretability={not args.skip_interpretability}, datasets={len(datasets)}"
+    )
         
     results = []
     base_output_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'results')
@@ -81,12 +134,13 @@ def main():
         if data is None:
             continue
             
-        D_train, D_val = data, data
-        # Move data to device
-        for k in D_train:
-            D_train[k] = D_train[k].to(device)
+        D_train_cpu = {k: v.cpu() for k, v in data.items()}
+        D_val_cpu = D_train_cpu
             
-        n_features = D_train['train_input'].shape[1]
+        n_features = D_train_cpu['train_input'].shape[1]
+        train_device = device
+        D_train = {k: v.to(train_device) for k, v in D_train_cpu.items()}
+        D_val = D_train
         
         if task_type == 'classification':
             n_classes = len(torch.unique(D_train['train_label']))
@@ -96,7 +150,13 @@ def main():
             
         # 1. Run GA-KAN
         print("Running GA-KAN...")
-        config = ChromosomeConfig(n=n_features, m=m_out, d_max=5, u_max=10)
+        config = ChromosomeConfig(
+            n=n_features,
+            m=m_out,
+            d_max=args.d_max,
+            u_max=args.u_max,
+            b_depth_len=depth_bits
+        )
         selection = TournamentSelection()
         crossover = GAKANCrossover(pc=0.9)
         mutation = BitFlipMutation(pm=0.5)
@@ -110,21 +170,24 @@ def main():
             max_gen=max_gen,
             N_steps=N_steps,
             task_type=task_type,
-            device=device
+            device=train_device,
+            num_workers=args.cpu_workers,
+            cpu_torch_threads=args.cpu_torch_threads,
+            parallel_backend=args.parallel_backend
         )
         
         best_ind, best_fit = optimizer.run(D_train, D_val)
         
         # Evaluate GA-KAN Best Individual
-        best_model = build_optimal_model(best_ind, device=device)
-        print("Training final GA-KAN architecture (LBFGS, 50 steps)...")
+        best_model = build_optimal_model(best_ind, device=train_device)
+        print(f"Training final GA-KAN architecture (LBFGS, {final_steps} steps)...")
         opt = torch.optim.LBFGS(best_model.parameters(), lr=0.1)
         if task_type == 'classification':
             criterion = torch.nn.CrossEntropyLoss()
         else:
             criterion = torch.nn.MSELoss()
             
-        for t in range(50):
+        for t in range(final_steps):
             def closure():
                 opt.zero_grad()
                 pred = best_model(D_train['train_input'])
@@ -141,10 +204,6 @@ def main():
             else:
                 gakan_score = criterion(preds, D_val['test_label']).item()
                 
-        # Extract and save interpretability
-        print("Extracting and saving Interpretability...")
-        optimal_network, feature_scores = optimizer.extract_interpretability(best_model, D_train)
-        
         # Save Interpretability Report
         report_path = os.path.join(dataset_dir, 'interpretability_report.txt')
         with open(report_path, 'w') as f:
@@ -154,33 +213,36 @@ def main():
             target_depth, grid_val, _ = best_ind.decode()
             f.write(f"Optimal Depth: {target_depth}\n")
             f.write(f"Optimal Grid Value: {grid_val}\n")
-            f.write(f"\nFeature Scores: {feature_scores}\n")
-            
-            f.write("\nSymbolic Formulas Extracted:\n")
-            for l in range(target_depth):
-                f.write(f"Layer {l}:\n")
-                funs_name = optimal_network.symbolic_fun[l].funs_name
-                f.write(str(funs_name) + "\n")
-                
-        # Save Plot
-        try:
-            plot_path = os.path.join(dataset_dir, 'ga_kan_architecture.png')
-            optimal_network.plot(folder=dataset_dir, title=f"GA-KAN Optimal ({name})")
-            plt.savefig(plot_path, dpi=150, bbox_inches='tight')
-            plt.close()
-            print(f"Architecture plot saved: {plot_path}")
-        except Exception as e:
-            print(f"Warning: Failed to plot network. {e}")
-            try:
-                plt.close('all')
-            except:
-                pass
+
+            if args.skip_interpretability:
+                f.write("\nInterpretability skipped.\n")
+            else:
+                print("Extracting and saving Interpretability...")
+                optimal_network, feature_scores = optimizer.extract_interpretability(best_model, D_train)
+                f.write(f"\nFeature Scores: {feature_scores}\n")
+
+                f.write("\nSymbolic Formulas Extracted:\n")
+                for l in range(target_depth):
+                    f.write(f"Layer {l}:\n")
+                    funs_name = optimal_network.symbolic_fun[l].funs_name
+                    f.write(str(funs_name) + "\n")
+
+                # Save Plot
+                try:
+                    plot_path = os.path.join(dataset_dir, 'ga_kan_architecture.png')
+                    optimal_network.plot(folder=dataset_dir, title=f"GA-KAN Optimal ({name})")
+                    plt.savefig(plot_path, dpi=150, bbox_inches='tight')
+                    plt.close()
+                    print(f"Architecture plot saved: {plot_path}")
+                except Exception as e:
+                    print(f"Warning: Failed to plot network. {e}")
+                    try:
+                        plt.close('all')
+                    except:
+                        pass
 
         # 2. Run Baselines
         print("Running Baselines...")
-        # Move back to CPU for sklearn
-        D_train_cpu = {k: v.cpu() for k, v in D_train.items()}
-        D_val_cpu = {k: v.cpu() for k, v in D_val.items()}
         
         for baseline in ['SVM', 'RF', 'MLP', 'KNN']:
             res = run_sklearn_baseline(baseline, D_train_cpu, D_val_cpu, task_type)
@@ -193,12 +255,12 @@ def main():
             
         # Standard KAN configs
         # config 1: [d, 2d+1, C]
-        res_kan1 = run_standard_kan([n_features, 2*n_features+1, m_out], D_train, D_val, task_type, N_steps, device)
+        res_kan1 = run_standard_kan([n_features, 2*n_features+1, m_out], D_train, D_val, task_type, N_steps, train_device)
         score1 = res_kan1['Accuracy'] if task_type == 'classification' else res_kan1['MSE']
         results.append({'Dataset': name, 'Model': 'Standard KAN [d, 2d+1, C]', 'Score': score1})
         
         # config 2: [d, 5, 5, 5, C]
-        res_kan2 = run_standard_kan([n_features, 5, 5, 5, m_out], D_train, D_val, task_type, N_steps, device)
+        res_kan2 = run_standard_kan([n_features, 5, 5, 5, m_out], D_train, D_val, task_type, N_steps, train_device)
         score2 = res_kan2['Accuracy'] if task_type == 'classification' else res_kan2['MSE']
         results.append({'Dataset': name, 'Model': 'Standard KAN [d, 5, 5, 5, C]', 'Score': score2})
         
@@ -215,7 +277,11 @@ def main():
     df = pd.DataFrame(results)
     df.to_csv(os.path.join(base_output_dir, 'results.csv'), index=False)
     print(f"\nFinal Results saved to {os.path.join(base_output_dir, 'results.csv')}")
-    print(df)
+    print("\nComparison Results:")
+    print(df.to_string(index=False, formatters={'Score': lambda x: f'{x:.6g}'}))
+
+    if args.no_upload:
+        return
 
     # --- Auto Zip & Push to Hugging Face ---
     try:

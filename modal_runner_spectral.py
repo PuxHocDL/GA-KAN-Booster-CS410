@@ -18,7 +18,7 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(description='Spectral GA-KAN RL Experiments')
     parser.add_argument('--env', type=str, default=None,
-                        help='Specific environment (default: all). Options: CartPole-v1, Acrobot-v1, LunarLander-v3, MountainCar-v0')
+                        help='Specific environment (default: all). Options: CartPole-v1, Acrobot-v1, LunarLander-v3, MountainCar-v0, Pendulum-v1, LunarLander-Wind')
     parser.add_argument('--workers', type=int, default=None,
                         help='Number of parallel workers (default: auto based on CPU count)')
     parser.add_argument('--output', type=str, default=None,

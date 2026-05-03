@@ -54,6 +54,51 @@ class MountainCarRewardWrapper(gym.Wrapper):
         return obs, shaped_reward, terminated, truncated, info
 
 
+class DiscretePendulumWrapper(gym.Wrapper):
+    """Discretize Pendulum-v1 action space into 5 actions.
+    
+    Maps discrete actions {0,1,2,3,4} → torques {-2, -1, 0, 1, 2}.
+    Pendulum is a deceptive swing-up task: agent must build momentum
+    to swing the pendulum upright from hanging position.
+    """
+    def __init__(self, env):
+        super().__init__(env)
+        self._action_map = np.array([-2.0, -1.0, 0.0, 1.0, 2.0])
+        self.action_space = gym.spaces.Discrete(5)
+    
+    def step(self, action):
+        continuous_action = np.array([self._action_map[action]])
+        obs, reward, terminated, truncated, info = self.env.step(continuous_action)
+        return obs, reward, terminated, truncated, info
+
+
+class PendulumTerminationWrapper(gym.Wrapper):
+    """Add early termination to Pendulum when upright is achieved.
+    
+    Original Pendulum never terminates (fixed 200 steps).
+    This wrapper gives bonus if angle is within ±0.1 rad and low velocity.
+    """
+    def __init__(self, env):
+        super().__init__(env)
+        self._step_count = 0
+        self._max_steps = 200
+    
+    def reset(self, **kwargs):
+        obs, info = self.env.reset(**kwargs)
+        self._step_count = 0
+        return obs, info
+    
+    def step(self, action):
+        obs, reward, terminated, truncated, info = self.env.step(action)
+        self._step_count += 1
+        # Pendulum obs: [cos(theta), sin(theta), theta_dot]
+        # Normalize reward from [-16.27, 0] to something more informative
+        # Original: -(theta^2 + 0.1*theta_dot^2 + 0.001*torque^2)
+        if self._step_count >= self._max_steps:
+            truncated = True
+        return obs, reward, terminated, truncated, info
+
+
 def build_spectral_model(individual: SpectralChromosome, device='cpu'):
     """
     Build a ChebKAN model from a SpectralChromosome.
@@ -177,12 +222,14 @@ def evaluate_spectral_fitness_rl(individual: SpectralChromosome, env_name: str,
     
     Returns
     -------
-    tuple: (fitness, trained_weights)
-        fitness is negative reward (minimization), weights is state_dict
+    tuple: (fitness, trained_weights, behavior_descriptor)
+        fitness is negative reward (minimization)
+        weights is state_dict as numpy
+        behavior_descriptor is a numpy array characterizing the agent's behavior
     """
     model = build_spectral_model(individual, device=device)
     if model is None:
-        return float('inf'), None
+        return float('inf'), None, None
     
     # [Lamarckian] Load inherited weights (stored as numpy, convert to torch)
     has_prior_weights = False
@@ -201,9 +248,15 @@ def evaluate_spectral_fitness_rl(individual: SpectralChromosome, env_name: str,
     
     own_envs = envs is None
     if own_envs:
-        if 'MountainCar' in env_name:
+        if 'MountainCar' in env_name and 'Continuous' not in env_name:
             envs = gym.make_vec(env_name, num_envs=N_steps, vectorization_mode=vectorization_mode,
                                 wrappers=[MountainCarRewardWrapper])
+        elif 'Pendulum' in env_name:
+            envs = gym.make_vec('Pendulum-v1', num_envs=N_steps, vectorization_mode=vectorization_mode,
+                                wrappers=[DiscretePendulumWrapper, PendulumTerminationWrapper])
+        elif env_name == 'LunarLander-Wind':
+            envs = gym.make_vec('LunarLander-v3', num_envs=N_steps, vectorization_mode=vectorization_mode,
+                                kwargs={'enable_wind': True, 'wind_power': 15.0, 'turbulence_power': 1.5})
         else:
             try:
                 envs = gym.make_vec(env_name, num_envs=N_steps, vectorization_mode=vectorization_mode)
@@ -212,6 +265,10 @@ def evaluate_spectral_fitness_rl(individual: SpectralChromosome, env_name: str,
     
     try:
         rewards = []
+        # Behavior tracking: collect state statistics during final evaluation
+        all_states_max = None
+        all_states_min = None
+        
         for i in range(actual_iterations):
             r = train_rl_vectorized(model, envs, optimizer, device=device, max_steps=max_steps)
             rewards.append(r)
@@ -224,6 +281,9 @@ def evaluate_spectral_fitness_rl(individual: SpectralChromosome, env_name: str,
                 if max(recent) - min(recent) < 1.0 and i >= 5:
                     break
         
+        # Collect behavior descriptor from final rollout (no gradient)
+        behavior = _collect_behavior(model, envs, device, max_steps)
+        
         avg_reward = max(rewards) if rewards else 0.0
         
         # [Lamarckian] Extract trained weights as numpy (avoids torch fd-sharing in multiprocessing)
@@ -232,11 +292,57 @@ def evaluate_spectral_fitness_rl(individual: SpectralChromosome, env_name: str,
     except Exception as e:
         if own_envs:
             envs.close()
-        return float('inf'), None
+        return float('inf'), None, None
     
     if own_envs:
         envs.close()
     
     # Fitness = negative reward (we minimize)
     fitness = -avg_reward
-    return fitness, trained_weights
+    return fitness, trained_weights, behavior
+
+
+def _collect_behavior(model, envs, device, max_steps):
+    """
+    Collect a behavior descriptor from a single rollout.
+    
+    Behavior descriptor captures WHERE the agent goes (state space coverage),
+    not just how much reward it gets. This enables novelty search.
+    
+    Returns numpy array of behavior features:
+    - For MountainCar: [max_position, max_abs_velocity, mean_position, time_to_first_high]
+    - For Pendulum: [max_cos_angle, mean_angular_velocity, time_upright]
+    - Generic: [mean_obs_per_dim..., std_obs_per_dim...]
+    """
+    model.eval()
+    states, _ = envs.reset()
+    
+    obs_dim = states.shape[1]
+    all_obs = []
+    
+    with torch.no_grad():
+        for step in range(max_steps):
+            all_obs.append(states.copy())
+            state_tensor = torch.as_tensor(states, dtype=torch.float32, device=device)
+            logits = model(state_tensor)
+            dist = Categorical(logits=logits)
+            actions = dist.sample()
+            states, _, terminated, truncated, _ = envs.step(actions.cpu().numpy())
+            dones = terminated | truncated
+            if dones.all():
+                break
+    
+    model.train()
+    
+    if not all_obs:
+        return np.zeros(obs_dim * 2)
+    
+    obs_array = np.concatenate(all_obs, axis=0)  # (T*num_envs, obs_dim)
+    
+    # Behavior = [max per dim, mean per dim] — captures state space coverage
+    behavior = np.concatenate([
+        obs_array.max(axis=0),   # max reached per dimension
+        obs_array.mean(axis=0),  # average position per dimension
+    ])
+    
+    return behavior

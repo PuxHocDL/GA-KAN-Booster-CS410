@@ -5,7 +5,16 @@ import warnings
 
 from .chromosome import Chromosome, is_valid_topology
 
-def evaluate_fitness(individual: Chromosome, D_train, D_val, task_type='regression', N_steps=20, device='cpu', use_adam=True):
+def evaluate_fitness(
+    individual: Chromosome,
+    D_train,
+    D_val,
+    task_type='regression',
+    N_steps=20,
+    device='cpu',
+    use_adam=True,
+    val_interval=5
+):
     """
     Evaluates the fitness of an individual chromosome.
     Fitness is the minimum validation loss achieved during training.
@@ -53,6 +62,7 @@ def evaluate_fitness(individual: Chromosome, D_train, D_val, task_type='regressi
         if use_adam:
             # Adam: much faster per step, good enough for topology search
             optimizer = torch.optim.Adam(model.parameters(), lr=1e-2)
+            effective_val_interval = max(1, val_interval)
             for t in range(N_steps):
                 optimizer.zero_grad()
                 pred = model(D_train['train_input'])
@@ -60,8 +70,9 @@ def evaluate_fitness(individual: Chromosome, D_train, D_val, task_type='regressi
                 train_loss.backward()
                 optimizer.step()
                 
-                # Validation every 5 steps to save time
-                if t % 5 == 0 or t == N_steps - 1:
+                # On tiny workloads, frequent .item() calls can dominate runtime,
+                # especially when they force GPU synchronization.
+                if t % effective_val_interval == 0 or t == N_steps - 1:
                     with torch.no_grad():
                         val_pred = model(D_val['test_input'])
                         val_loss = criterion(val_pred, D_val['test_label']).item()
