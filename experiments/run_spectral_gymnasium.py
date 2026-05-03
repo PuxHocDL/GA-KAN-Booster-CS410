@@ -24,7 +24,8 @@ from spectral_kan.fitness_rl import build_spectral_model
 
 
 # =====================================================================
-# Per-task configuration
+# =====================================================================
+# Per-task configuration (Baseline - No Novelty Search)
 # =====================================================================
 TASK_CONFIGS = {
     'CartPole-v1': {
@@ -62,9 +63,6 @@ TASK_CONFIGS = {
         'd_max': 4,
         'u_max': 16,
         'degree_max': 10,
-        # Novelty Search enabled for deceptive environment
-        'novelty_weight': 0.3,
-        'novelty_k': 5,
     },
     'LunarLander-v3': {
         'obs_dim': 8, 'act_dim': 4,
@@ -89,9 +87,6 @@ TASK_CONFIGS = {
         'd_max': 4,
         'u_max': 12,
         'degree_max': 10,
-        # Novelty Search for deceptive swing-up
-        'novelty_weight': 0.3,
-        'novelty_k': 5,
     },
     'LunarLander-Wind': {
         'obs_dim': 8, 'act_dim': 4,
@@ -104,9 +99,46 @@ TASK_CONFIGS = {
         'd_max': 4,
         'u_max': 24,
         'degree_max': 10,
-        # Novelty to help with wind randomness
-        'novelty_weight': 0.15,
-        'novelty_k': 5,
+    },
+}
+
+# Novelty Search configs per environment (used with --novelty flag)
+NOVELTY_CONFIGS = {
+    'MountainCar-v0': {'novelty_weight': 0.3, 'novelty_k': 5},
+    'Pendulum-v1': {'novelty_weight': 0.3, 'novelty_k': 5},
+    'LunarLander-Wind': {'novelty_weight': 0.15, 'novelty_k': 5},
+    # These don't really need novelty but can be tried:
+    'CartPole-v1': {'novelty_weight': 0.1, 'novelty_k': 5},
+    'Acrobot-v1': {'novelty_weight': 0.1, 'novelty_k': 5},
+    'LunarLander-v3': {'novelty_weight': 0.1, 'novelty_k': 5},
+}
+
+# Experiment stages for incremental exploration
+STAGES = {
+    1: {
+        'name': 'Baseline (4 original envs, no novelty)',
+        'envs': ['CartPole-v1', 'Acrobot-v1', 'LunarLander-v3', 'MountainCar-v0'],
+        'use_novelty': False,
+    },
+    2: {
+        'name': 'Novelty Search on hard envs',
+        'envs': ['MountainCar-v0'],
+        'use_novelty': True,
+    },
+    3: {
+        'name': 'New environments (Pendulum + LunarLander-Wind)',
+        'envs': ['Pendulum-v1', 'LunarLander-Wind'],
+        'use_novelty': False,
+    },
+    4: {
+        'name': 'New environments + Novelty Search',
+        'envs': ['Pendulum-v1', 'LunarLander-Wind'],
+        'use_novelty': True,
+    },
+    5: {
+        'name': 'All 6 environments + Novelty Search',
+        'envs': ['CartPole-v1', 'Acrobot-v1', 'LunarLander-v3', 'MountainCar-v0', 'Pendulum-v1', 'LunarLander-Wind'],
+        'use_novelty': True,
     },
 }
 
@@ -282,9 +314,16 @@ def save_model(individual: SpectralChromosome, output_dir: str, env_name: str):
     return arch_file
 
 
-def run_single_experiment(env_name: str, output_dir: str, num_workers=None):
-    """Run spectral GA-KAN experiment on a single environment."""
-    cfg = TASK_CONFIGS[env_name]
+def run_single_experiment(env_name: str, output_dir: str, num_workers=None, config_override=None):
+    """Run spectral GA-KAN experiment on a single environment.
+    
+    Parameters
+    ----------
+    config_override : dict, optional
+        If provided, use this config instead of TASK_CONFIGS[env_name].
+        Useful for running with/without novelty on the same env.
+    """
+    cfg = config_override if config_override else TASK_CONFIGS[env_name]
     
     os.makedirs(output_dir, exist_ok=True)
     logger = setup_logger(env_name, output_dir)
@@ -346,6 +385,8 @@ def run_single_experiment(env_name: str, output_dir: str, num_workers=None):
         novelty_k=novelty_k,
     )
     
+    variant_label = 'novelty' if novelty_weight > 0 else 'baseline'
+    logger.info(f"Variant: {variant_label}")
     if novelty_weight > 0:
         logger.info(f"Novelty Search ENABLED: weight={novelty_weight}, k={novelty_k}")
     
@@ -431,13 +472,62 @@ def run_single_experiment(env_name: str, output_dir: str, num_workers=None):
     return results
 
 
+def run_stage(stage_num, num_workers=None, output_base=None):
+    """Run a specific experiment stage."""
+    if stage_num not in STAGES:
+        print(f"Invalid stage {stage_num}. Available: {list(STAGES.keys())}")
+        return {}
+    
+    stage = STAGES[stage_num]
+    use_novelty = stage['use_novelty']
+    
+    if output_base is None:
+        suffix = '_novelty' if use_novelty else ''
+        output_base = os.path.join(os.path.dirname(__file__), f'results_spectral{suffix}')
+    
+    print(f"\n{'='*60}")
+    print(f"STAGE {stage_num}: {stage['name']}")
+    print(f"Environments: {stage['envs']}")
+    print(f"Novelty Search: {'ON' if use_novelty else 'OFF'}")
+    print(f"Output: {output_base}")
+    print(f"{'='*60}")
+    
+    all_results = {}
+    for env_name in stage['envs']:
+        cfg = TASK_CONFIGS[env_name].copy()
+        
+        # Apply novelty config if enabled
+        if use_novelty and env_name in NOVELTY_CONFIGS:
+            cfg.update(NOVELTY_CONFIGS[env_name])
+        
+        output_dir = os.path.join(output_base, env_name)
+        print(f"\nStarting: {env_name} ({'+ novelty' if use_novelty else 'baseline'})")
+        
+        try:
+            results = run_single_experiment(env_name, output_dir, num_workers=num_workers, config_override=cfg)
+            all_results[env_name] = results
+        except Exception as e:
+            print(f"FAILED: {env_name} - {e}")
+            import traceback
+            traceback.print_exc()
+            all_results[env_name] = {'error': str(e)}
+    
+    # Save combined results
+    combined_file = os.path.join(output_base, f'stage{stage_num}_results.json')
+    with open(combined_file, 'w') as f:
+        json.dump(all_results, f, indent=2)
+    
+    _print_summary(all_results, stage['name'])
+    return all_results
+
+
 def run_all_experiments(num_workers=None, output_base=None):
-    """Run spectral GA-KAN on all configured environments."""
+    """Run spectral GA-KAN on all configured environments (baseline, no novelty)."""
     if output_base is None:
         output_base = os.path.join(os.path.dirname(__file__), 'results_spectral')
     
     all_results = {}
-    envs_to_run = ['CartPole-v1', 'Acrobot-v1', 'LunarLander-v3', 'MountainCar-v0']
+    envs_to_run = list(TASK_CONFIGS.keys())
     
     for env_name in envs_to_run:
         output_dir = os.path.join(output_base, env_name)
@@ -459,9 +549,14 @@ def run_all_experiments(num_workers=None, output_base=None):
     with open(combined_file, 'w') as f:
         json.dump(all_results, f, indent=2)
     
-    # Print summary
+    _print_summary(all_results, "Spectral GA-KAN (Baseline)")
+    return all_results
+
+
+def _print_summary(all_results, title):
+    """Print a formatted summary table."""
     print(f"\n{'='*60}")
-    print("SUMMARY - Spectral GA-KAN Results")
+    print(f"SUMMARY - {title}")
     print(f"{'='*60}")
     for env_name, res in all_results.items():
         if 'error' in res:
@@ -472,25 +567,54 @@ def run_all_experiments(num_workers=None, output_base=None):
             print(f"  {env_name}: {eval_stats['mean']:.1f} ± {eval_stats['std']:.1f} "
                   f"(arch: {arch['width']}, deg={arch['degree']}, "
                   f"params={arch['estimated_params']}, time={res['time_seconds']:.0f}s)")
-    
-    return all_results
 
 
 if __name__ == '__main__':
     import argparse
-    parser = argparse.ArgumentParser(description='Spectral GA-KAN RL Experiments')
+    parser = argparse.ArgumentParser(
+        description='Spectral GA-KAN RL Experiments',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Stages (incremental exploration):
+  1 - Baseline: CartPole, Acrobot, LunarLander, MountainCar (no novelty)
+  2 - Novelty Search: MountainCar only (compare with stage 1)
+  3 - New envs baseline: Pendulum, LunarLander-Wind (no novelty)
+  4 - New envs + novelty: Pendulum, LunarLander-Wind (with novelty)
+  5 - Full run: all 6 environments with novelty search
+
+Examples:
+  python run_spectral_gymnasium.py --stage 1            # baseline 4 envs
+  python run_spectral_gymnasium.py --stage 2            # novelty on MountainCar
+  python run_spectral_gymnasium.py --env MountainCar-v0 --novelty  # single env + novelty
+  python run_spectral_gymnasium.py --env Pendulum-v1    # single env baseline
+"""
+    )
     parser.add_argument('--env', type=str, default=None,
-                        help='Specific environment to run (default: all)')
+                        help='Specific environment to run')
+    parser.add_argument('--stage', type=int, default=None,
+                        help='Run a predefined stage (1-5)')
+    parser.add_argument('--novelty', action='store_true',
+                        help='Enable Novelty Search for the selected env(s)')
     parser.add_argument('--workers', type=int, default=None,
                         help='Number of parallel workers (default: auto)')
     parser.add_argument('--output', type=str, default=None,
                         help='Output directory')
     args = parser.parse_args()
     
-    if args.env:
+    if args.stage:
+        # Run a specific stage
+        run_stage(args.stage, num_workers=args.workers, output_base=args.output)
+    elif args.env:
+        # Run a single environment
+        cfg = TASK_CONFIGS[args.env].copy()
+        if args.novelty and args.env in NOVELTY_CONFIGS:
+            cfg.update(NOVELTY_CONFIGS[args.env])
+        
+        suffix = '_novelty' if args.novelty else ''
         output_dir = args.output or os.path.join(
-            os.path.dirname(__file__), 'results_spectral', args.env
+            os.path.dirname(__file__), f'results_spectral{suffix}', args.env
         )
-        run_single_experiment(args.env, output_dir, num_workers=args.workers)
+        run_single_experiment(args.env, output_dir, num_workers=args.workers, config_override=cfg)
     else:
-        run_all_experiments(num_workers=args.workers, output_base=args.output)
+        # Default: run stage 1 (baseline)
+        run_stage(1, num_workers=args.workers, output_base=args.output)
