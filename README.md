@@ -196,12 +196,15 @@ A **behavior archive** stores diverse behaviors discovered so far, growing the r
 
 The novelty pressure drove the GA to discover the "swing" strategy at generation 15 (reward jumped from -190 → +97), then the population converged to refine it.
 
-### Additional Hard Environments
+### Additional Hard Environments (Stage 4: Novelty Search)
 
-| Environment | Description | Result |
-|-------------|-------------|--------|
-| Pendulum-v1 | Continuous control, discretized to 5 actions | -223.7 mean (best: -3.5) |
-| LunarLander-Wind | Wind + turbulence (enable_wind, power=15) | In progress |
+| Environment | Architecture | Params | Eval Mean | Eval Max | Time |
+|-------------|-------------|--------|-----------|----------|------|
+| Pendulum-v1 | [3,12,5] deg=10 | 1056 | -223.7 | **-3.5** | 649s |
+| LunarLander-Wind | [8,9,9,4] deg=3 | 756 | **94.2** | 257.1 | 668s |
+
+- **Pendulum-v1**: Continuous torque discretized to 5 actions. High variance (std=242) indicates policy is inconsistent but capable of near-perfect episodes (-3.5).
+- **LunarLander-Wind**: Standard LunarLander + stochastic wind (power=15, turbulence=1.5). Deeper 3-layer KAN needed (degree=3 sufficient). Mean=94.2 demonstrates robust landing despite wind disturbances.
 
 ### Experiment Stages
 
@@ -238,8 +241,8 @@ GA-KAN matches or exceeds traditional ML baselines (SVM, RF, KNN) on most classi
 | Acrobot-v1 | -79 ✅ | -96.1 ✅ | — |
 | LunarLander-v3 | 90 ✅ | 141.8 ✅ | — |
 | MountainCar-v0 | -200 ❌ | -200 ❌ | **-102.6 ✅** |
-| Pendulum-v1 | — | — | -223.7 (partial) |
-| LunarLander-Wind | — | — | In progress |
+| Pendulum-v1 | — | — | -223.7 (best: -3.5) |
+| LunarLander-Wind | — | — | **94.2 ✅** |
 
 ### Key Takeaways
 
