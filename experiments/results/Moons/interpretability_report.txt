@@ -1,0 +1,7 @@
+Dataset: Moons
+Task Type: classification
+Best Fitness (Loss): 0.0175
+Optimal Depth: 5
+Optimal Grid Value: 9
+
+Interpretability skipped.

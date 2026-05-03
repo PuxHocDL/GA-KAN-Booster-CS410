@@ -1,0 +1,7 @@
+Dataset: Diabetes
+Task Type: regression
+Best Fitness (Loss): 0.4012
+Optimal Depth: 4
+Optimal Grid Value: 8
+
+Interpretability skipped.

@@ -1,0 +1,50 @@
+2026-05-03 06:30:08,698 | ============================================================
+2026-05-03 06:30:08,698 | Spectral GA-KAN Experiment: LunarLander-Wind
+2026-05-03 06:30:08,699 | ============================================================
+2026-05-03 06:30:08,699 | Config: obs=8, act=4, d_max=4, u_max=24, degree_max=10
+2026-05-03 06:30:08,699 | Chromosome length: 1450 bits
+2026-05-03 06:30:08,700 | Population: 28, Generations: 20
+2026-05-03 06:30:08,700 | Train iters: new=10, elite=30
+2026-05-03 06:30:08,701 | Variant: novelty
+2026-05-03 06:30:08,701 | Novelty Search ENABLED: weight=0.15, k=5
+2026-05-03 06:30:22,334 | Gen 1/20 | Best Reward: -121.82 | Avg Reward: -184.55 | Valid: 28/28 | Novelty: 1.052 | Archive: 3
+2026-05-03 06:30:32,879 | Gen 2/20 | Best Reward: -61.05 | Avg Reward: -180.30 | Valid: 28/28 | Novelty: 1.279 | Archive: 4
+2026-05-03 06:30:51,083 | Gen 3/20 | Best Reward: -47.65 | Avg Reward: -129.58 | Valid: 28/28 | Novelty: 1.084 | Archive: 7
+2026-05-03 06:31:07,496 | Gen 4/20 | Best Reward: -17.82 | Avg Reward: -166.83 | Valid: 28/28 | Novelty: 1.268 | Archive: 11
+2026-05-03 06:31:30,110 | Gen 5/20 | Best Reward: -10.05 | Avg Reward: -143.83 | Valid: 28/28 | Novelty: 1.127 | Archive: 13
+2026-05-03 06:31:51,230 | Gen 6/20 | Best Reward: -0.96 | Avg Reward: -120.83 | Valid: 28/28 | Novelty: 1.172 | Archive: 15
+2026-05-03 06:32:16,823 | Gen 7/20 | Best Reward: 11.42 | Avg Reward: -79.90 | Valid: 28/28 | Novelty: 0.973 | Archive: 16
+2026-05-03 06:32:37,098 | Gen 8/20 | Best Reward: 21.43 | Avg Reward: -122.66 | Valid: 28/28 | Novelty: 0.781 | Archive: 17
+2026-05-03 06:32:57,378 | Gen 9/20 | Best Reward: 21.43 | Avg Reward: -144.11 | Valid: 28/28 | Novelty: 1.153 | Archive: 20
+2026-05-03 06:33:22,689 | Gen 10/20 | Best Reward: 93.71 | Avg Reward: -139.74 | Valid: 28/28 | Novelty: 1.035 | Archive: 21
+2026-05-03 06:33:47,266 | Gen 11/20 | Best Reward: 93.71 | Avg Reward: -117.55 | Valid: 28/28 | Novelty: 1.045 | Archive: 23
+2026-05-03 06:34:15,883 | Gen 12/20 | Best Reward: 136.25 | Avg Reward: -129.54 | Valid: 28/28 | Novelty: 1.390 | Archive: 24
+2026-05-03 06:34:58,683 | Gen 13/20 | Best Reward: 136.25 | Avg Reward: -54.67 | Valid: 28/28 | Novelty: 0.813 | Archive: 26
+2026-05-03 06:35:41,550 | Gen 14/20 | Best Reward: 152.04 | Avg Reward: -9.76 | Valid: 28/28 | Novelty: 0.881 | Archive: 30
+2026-05-03 06:36:28,315 | Gen 15/20 | Best Reward: 158.42 | Avg Reward: 92.39 | Valid: 28/28 | Novelty: 0.862 | Archive: 31
+2026-05-03 06:37:15,883 | Gen 16/20 | Best Reward: 168.96 | Avg Reward: 96.53 | Valid: 28/28 | Novelty: 0.838 | Archive: 31
+2026-05-03 06:38:14,665 | Gen 17/20 | Best Reward: 168.96 | Avg Reward: 97.52 | Valid: 28/28 | Novelty: 0.710 | Archive: 33
+2026-05-03 06:39:08,594 | Gen 18/20 | Best Reward: 183.73 | Avg Reward: 111.03 | Valid: 28/28 | Novelty: 0.923 | Archive: 38
+2026-05-03 06:40:10,164 | Gen 19/20 | Best Reward: 183.73 | Avg Reward: 125.24 | Valid: 28/28 | Novelty: 0.711 | Archive: 41
+2026-05-03 06:41:16,287 | Gen 20/20 | Best Reward: 183.73 | Avg Reward: 142.82 | Valid: 28/28 | Novelty: 0.861 | Archive: 44
+2026-05-03 06:41:16,298 | 
+Optimization complete in 667.6s
+2026-05-03 06:41:16,298 | Best GA fitness (neg reward): -183.7347
+2026-05-03 06:41:16,299 | Best GA reward: 183.7347
+2026-05-03 06:41:16,299 | Best architecture: width=[8, 9, 9, 4], degree=3
+2026-05-03 06:41:16,300 | Estimated params: 756
+2026-05-03 06:41:16,300 | 
+Running final evaluation (100 episodes, greedy)...
+2026-05-03 06:41:30,735 | Final Policy: mean=94.24 ± 164.27, min=-587.93, max=257.07
+2026-05-03 06:41:30,736 | 
+Saving model...
+2026-05-03 06:41:30,743 | Model saved to /__modal/volumes/vo-FFjTvIREqs5uPWSvFXC1EB/experiments/results_spectral_novelty/LunarLander-Wind
+2026-05-03 06:41:30,744 | 
+Recording video of best policy...
+2026-05-03 06:41:39,866 | Videos saved to /__modal/volumes/vo-FFjTvIREqs5uPWSvFXC1EB/experiments/results_spectral_novelty/LunarLander-Wind/videos
+2026-05-03 06:41:39,870 | Results saved to /__modal/volumes/vo-FFjTvIREqs5uPWSvFXC1EB/experiments/results_spectral_novelty/LunarLander-Wind/LunarLander-Wind_spectral_results.json
+2026-05-03 06:41:39,879 | 
+Spectral Energy Distribution:
+2026-05-03 06:41:39,879 |   Layer 0 (8→9): [T0=9.0985, T1=5.7738, T2=2.7076, T3=6.0648]
+2026-05-03 06:41:39,880 |   Layer 1 (9→9): [T0=11.0672, T1=3.6417, T2=6.8353, T3=6.4600]
+2026-05-03 06:41:39,880 |   Layer 2 (9→4): [T0=3.3093, T1=2.4232, T2=3.6249, T3=3.3522]

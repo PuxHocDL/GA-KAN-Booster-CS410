@@ -1,0 +1,54 @@
+2026-05-03 06:19:07,709 | ============================================================
+2026-05-03 06:19:07,710 | Spectral GA-KAN Experiment: Pendulum-v1
+2026-05-03 06:19:07,710 | ============================================================
+2026-05-03 06:19:07,710 | Config: obs=3, act=5, d_max=4, u_max=12, degree_max=10
+2026-05-03 06:19:07,711 | Chromosome length: 394 bits
+2026-05-03 06:19:07,711 | Population: 30, Generations: 25
+2026-05-03 06:19:07,712 | Train iters: new=15, elite=40
+2026-05-03 06:19:07,712 | Variant: novelty
+2026-05-03 06:19:07,712 | Novelty Search ENABLED: weight=0.3, k=5
+2026-05-03 06:19:29,891 | Gen 1/25 | Best Reward: -1011.90 | Avg Reward: -1120.64 | Valid: 30/30 | Novelty: 0.753 | Archive: 3
+2026-05-03 06:19:47,110 | Gen 2/25 | Best Reward: -740.58 | Avg Reward: -1110.08 | Valid: 30/30 | Novelty: 0.653 | Archive: 6
+2026-05-03 06:20:03,891 | Gen 3/25 | Best Reward: -412.35 | Avg Reward: -1099.38 | Valid: 30/30 | Novelty: 0.628 | Archive: 11
+2026-05-03 06:20:26,705 | Gen 4/25 | Best Reward: -158.63 | Avg Reward: -1063.53 | Valid: 30/30 | Novelty: 0.609 | Archive: 14
+2026-05-03 06:20:44,544 | Gen 5/25 | Best Reward: -158.63 | Avg Reward: -1080.95 | Valid: 30/30 | Novelty: 0.574 | Archive: 16
+2026-05-03 06:21:00,187 | Gen 6/25 | Best Reward: -158.63 | Avg Reward: -1090.01 | Valid: 30/30 | Novelty: 0.587 | Archive: 18
+2026-05-03 06:21:17,815 | Gen 7/25 | Best Reward: -158.63 | Avg Reward: -1048.02 | Valid: 30/30 | Novelty: 0.671 | Archive: 23
+2026-05-03 06:21:38,966 | Gen 8/25 | Best Reward: -156.18 | Avg Reward: -1012.91 | Valid: 30/30 | Novelty: 0.550 | Archive: 28
+2026-05-03 06:22:02,501 | Gen 9/25 | Best Reward: -111.85 | Avg Reward: -949.35 | Valid: 30/30 | Novelty: 0.501 | Archive: 29
+2026-05-03 06:22:26,206 | Gen 10/25 | Best Reward: -111.85 | Avg Reward: -812.73 | Valid: 30/30 | Novelty: 0.566 | Archive: 32
+2026-05-03 06:22:56,130 | Gen 11/25 | Best Reward: -111.85 | Avg Reward: -489.87 | Valid: 30/30 | Novelty: 0.353 | Archive: 35
+2026-05-03 06:23:26,622 | Gen 12/25 | Best Reward: -88.66 | Avg Reward: -212.44 | Valid: 30/30 | Novelty: 0.181 | Archive: 40
+2026-05-03 06:23:56,470 | Gen 13/25 | Best Reward: -88.66 | Avg Reward: -285.45 | Valid: 30/30 | Novelty: 0.239 | Archive: 42
+2026-05-03 06:24:26,912 | Gen 14/25 | Best Reward: -88.66 | Avg Reward: -206.19 | Valid: 30/30 | Novelty: 0.157 | Archive: 46
+2026-05-03 06:24:56,338 | Gen 15/25 | Best Reward: -88.66 | Avg Reward: -210.39 | Valid: 30/30 | Novelty: 0.159 | Archive: 48
+2026-05-03 06:25:26,271 | Gen 16/25 | Best Reward: -88.66 | Avg Reward: -208.26 | Valid: 30/30 | Novelty: 0.225 | Archive: 49
+2026-05-03 06:25:56,011 | Gen 17/25 | Best Reward: -88.66 | Avg Reward: -177.50 | Valid: 30/30 | Novelty: 0.263 | Archive: 53
+2026-05-03 06:26:26,475 | Gen 18/25 | Best Reward: -88.66 | Avg Reward: -177.88 | Valid: 30/30 | Novelty: 0.200 | Archive: 54
+2026-05-03 06:26:56,555 | Gen 19/25 | Best Reward: -88.66 | Avg Reward: -170.95 | Valid: 30/30 | Novelty: 0.151 | Archive: 56
+2026-05-03 06:27:26,587 | Gen 20/25 | Best Reward: -88.66 | Avg Reward: -178.08 | Valid: 30/30 | Novelty: 0.212 | Archive: 58
+2026-05-03 06:27:56,307 | Gen 21/25 | Best Reward: -88.66 | Avg Reward: -197.42 | Valid: 30/30 | Novelty: 0.269 | Archive: 58
+2026-05-03 06:28:26,196 | Gen 22/25 | Best Reward: -88.66 | Avg Reward: -201.72 | Valid: 30/30 | Novelty: 0.185 | Archive: 62
+2026-05-03 06:28:56,478 | Gen 23/25 | Best Reward: -88.66 | Avg Reward: -253.97 | Valid: 30/30 | Novelty: 0.223 | Archive: 64
+2026-05-03 06:29:26,630 | Gen 24/25 | Best Reward: -88.66 | Avg Reward: -158.91 | Valid: 30/30 | Novelty: 0.193 | Archive: 67
+2026-05-03 06:29:57,168 | Gen 25/25 | Best Reward: -88.66 | Avg Reward: -186.56 | Valid: 30/30 | Novelty: 0.166 | Archive: 72
+2026-05-03 06:29:57,174 | 
+Optimization complete in 649.5s
+2026-05-03 06:29:57,174 | Best GA fitness (neg reward): 88.6610
+2026-05-03 06:29:57,175 | Best GA reward: -88.6610
+2026-05-03 06:29:57,176 | Best architecture: width=[3, 12, 5], degree=10
+2026-05-03 06:29:57,176 | Estimated params: 1056
+2026-05-03 06:29:57,176 | 
+Running final evaluation (100 episodes, greedy)...
+2026-05-03 06:30:02,790 | Final Policy: mean=-223.71 ± 242.02, min=-1491.68, max=-3.55
+2026-05-03 06:30:02,791 | 
+Saving model...
+2026-05-03 06:30:02,803 | Model saved to /__modal/volumes/vo-FFjTvIREqs5uPWSvFXC1EB/experiments/results_spectral_novelty/Pendulum-v1
+2026-05-03 06:30:02,803 | 
+Recording video of best policy...
+2026-05-03 06:30:07,319 | Videos saved to /__modal/volumes/vo-FFjTvIREqs5uPWSvFXC1EB/experiments/results_spectral_novelty/Pendulum-v1/videos
+2026-05-03 06:30:07,323 | Results saved to /__modal/volumes/vo-FFjTvIREqs5uPWSvFXC1EB/experiments/results_spectral_novelty/Pendulum-v1/Pendulum-v1_spectral_results.json
+2026-05-03 06:30:07,330 | 
+Spectral Energy Distribution:
+2026-05-03 06:30:07,331 |   Layer 0 (3→12): [T0=5.6457, T1=2.2053, T2=0.5932, T3=1.0989, T4=0.3583, T5=0.7407, T6=0.4349, T7=0.9367, T8=0.3858, T9=0.6261, T10=0.3911]
+2026-05-03 06:30:07,331 |   Layer 1 (12→5): [T0=2.8830, T1=0.9969, T2=0.9792, T3=0.9683, T4=0.9514, T5=1.8933, T6=2.5352, T7=2.1870, T8=1.2126, T9=0.9511, T10=0.8632]

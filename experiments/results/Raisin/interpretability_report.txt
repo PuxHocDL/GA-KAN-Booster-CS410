@@ -1,0 +1,7 @@
+Dataset: Raisin
+Task Type: classification
+Best Fitness (Loss): 0.3362
+Optimal Depth: 3
+Optimal Grid Value: 3
+
+Interpretability skipped.

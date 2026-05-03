@@ -1,0 +1,7 @@
+Dataset: Digits
+Task Type: classification
+Best Fitness (Loss): 0.6690
+Optimal Depth: 1
+Optimal Grid Value: 64
+
+Interpretability skipped.

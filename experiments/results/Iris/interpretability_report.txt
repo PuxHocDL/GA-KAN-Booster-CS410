@@ -1,18 +1,7 @@
 Dataset: Iris
 Task Type: classification
-Best Fitness (Loss): 0.0014
+Best Fitness (Loss): 0.1579
 Optimal Depth: 4
-Optimal Grid Value: 3
+Optimal Grid Value: 10
 
-Feature Scores: tensor([0.1667, 0.2626, 0.4577, 0.5742], device='cuda:0',
-       grad_fn=<MeanBackward1>)
-
-Symbolic Formulas Extracted:
-Layer 0:
-[['x^2', 'x^2', '0', 'x'], ['x', '0', 'x', '0'], ['0', '0', 'sin', '0'], ['0', '0', 'x', 'x^2'], ['tanh', 'cos', '0', '0']]
-Layer 1:
-[['0', '0', '0', '0', 'x'], ['x', '0', 'x', '0', 'x'], ['0', 'cos', '0', 'x^2', '0'], ['x', '0', 'x', '0', 'x'], ['x', 'x^2', 'sin', 'x', '0']]
-Layer 2:
-[['0', 'sin', '0', '0', 'exp'], ['0', '0', '0', 'cos', '0'], ['x', 'sin', '0', '0', 'x^2'], ['0', 'sin', 'x', 'x', 'cos'], ['0', 'cos', 'x^2', 'x^2', '0']]
-Layer 3:
-[['x', '0', 'x', '0', 'x'], ['x', '0', 'x', 'x', 'x'], ['0', 'sin', 'x', 'x', 'x']]
+Interpretability skipped.

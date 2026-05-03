@@ -1,0 +1,7 @@
+Dataset: WDBC
+Task Type: classification
+Best Fitness (Loss): 0.0548
+Optimal Depth: 3
+Optimal Grid Value: 7
+
+Interpretability skipped.

@@ -1,0 +1,7 @@
+Dataset: Glass
+Task Type: classification
+Best Fitness (Loss): 0.9575
+Optimal Depth: 2
+Optimal Grid Value: 20
+
+Interpretability skipped.

@@ -1,0 +1,7 @@
+Dataset: Banknote
+Task Type: classification
+Best Fitness (Loss): 0.0479
+Optimal Depth: 4
+Optimal Grid Value: 14
+
+Interpretability skipped.

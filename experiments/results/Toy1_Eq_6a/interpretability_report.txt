@@ -1,15 +1,7 @@
-Dataset: Toy1 (Eq 6a)
+Dataset: Toy1_Eq_6a
 Task Type: regression
-Best Fitness (Loss): 0.0001
-Optimal Depth: 3
-Optimal Grid Value: 33
+Best Fitness (Loss): 0.4630
+Optimal Depth: 5
+Optimal Grid Value: 27
 
-Feature Scores: tensor([0.7850, 0.9796], device='cuda:0', grad_fn=<MeanBackward1>)
-
-Symbolic Formulas Extracted:
-Layer 0:
-[['x', '0'], ['0', 'x^2'], ['0', '0'], ['x^2', 'x^2'], ['x^2', '0']]
-Layer 1:
-[['0', 'x^2', 'x', 'x^2', '0'], ['0', '0', 'x', '0', 'exp'], ['0', '0', 'x', '0', 'exp'], ['exp', 'x^2', 'x', '0', 'x^2'], ['0', 'x^2', '0', 'exp', 'x^2']]
-Layer 2:
-[['0', 'exp', 'exp', '0', 'x^2']]
+Interpretability skipped.

@@ -1,0 +1,7 @@
+Dataset: Toy3_sincos
+Task Type: regression
+Best Fitness (Loss): 0.0044
+Optimal Depth: 4
+Optimal Grid Value: 52
+
+Interpretability skipped.

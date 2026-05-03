@@ -1,0 +1,282 @@
+{
+  "MountainCar-v0": {
+    "env_name": "MountainCar-v0",
+    "method": "Spectral_GA_KAN",
+    "best_ga_reward": 124.82765197753906,
+    "final_eval": {
+      "mean": -102.63,
+      "std": 6.364990180667996,
+      "min": -112.0,
+      "max": -83.0,
+      "episodes": 100
+    },
+    "architecture": {
+      "width": [
+        2,
+        15,
+        3
+      ],
+      "degree": 10,
+      "depth": 2,
+      "estimated_params": 825
+    },
+    "config": {
+      "obs_dim": 2,
+      "act_dim": 3,
+      "max_steps": 200,
+      "n_train_iterations": 25,
+      "n_train_iterations_elite": 80,
+      "pop_size": 30,
+      "max_gen": 30,
+      "N_steps": 32,
+      "d_max": 4,
+      "u_max": 16,
+      "degree_max": 10,
+      "novelty_weight": 0.3,
+      "novelty_k": 5
+    },
+    "time_seconds": 1290.5798161029816,
+    "history": [
+      {
+        "gen": 1,
+        "best_reward": -196.28916931152344,
+        "avg_reward": -198.60077412923178,
+        "pop_valid": 30,
+        "avg_novelty": 0.04304680203398069,
+        "archive_size": 2
+      },
+      {
+        "gen": 2,
+        "best_reward": -195.69627380371094,
+        "avg_reward": -197.78778025309245,
+        "pop_valid": 30,
+        "avg_novelty": 0.03607402443885803,
+        "archive_size": 7
+      },
+      {
+        "gen": 3,
+        "best_reward": -195.69627380371094,
+        "avg_reward": -198.11535237630207,
+        "pop_valid": 30,
+        "avg_novelty": 0.03414658540859818,
+        "archive_size": 8
+      },
+      {
+        "gen": 4,
+        "best_reward": -195.69627380371094,
+        "avg_reward": -198.4904037475586,
+        "pop_valid": 30,
+        "avg_novelty": 0.03514484029728919,
+        "archive_size": 13
+      },
+      {
+        "gen": 5,
+        "best_reward": -195.5211639404297,
+        "avg_reward": -197.67408447265626,
+        "pop_valid": 30,
+        "avg_novelty": 0.03605117498664186,
+        "archive_size": 14
+      },
+      {
+        "gen": 6,
+        "best_reward": -195.5211639404297,
+        "avg_reward": -197.4260289510091,
+        "pop_valid": 30,
+        "avg_novelty": 0.028127673990093173,
+        "archive_size": 20
+      },
+      {
+        "gen": 7,
+        "best_reward": -193.23379516601562,
+        "avg_reward": -197.09574279785156,
+        "pop_valid": 30,
+        "avg_novelty": 0.03084943148617943,
+        "archive_size": 24
+      },
+      {
+        "gen": 8,
+        "best_reward": -193.23379516601562,
+        "avg_reward": -197.6752507527669,
+        "pop_valid": 30,
+        "avg_novelty": 0.023956253286451103,
+        "archive_size": 28
+      },
+      {
+        "gen": 9,
+        "best_reward": -193.23379516601562,
+        "avg_reward": -197.22990824381512,
+        "pop_valid": 30,
+        "avg_novelty": 0.03441114134620875,
+        "archive_size": 31
+      },
+      {
+        "gen": 10,
+        "best_reward": -193.23379516601562,
+        "avg_reward": -197.11951751708983,
+        "pop_valid": 30,
+        "avg_novelty": 0.0284454594211032,
+        "archive_size": 33
+      },
+      {
+        "gen": 11,
+        "best_reward": -193.23379516601562,
+        "avg_reward": -196.96383107503254,
+        "pop_valid": 30,
+        "avg_novelty": 0.02146908841871967,
+        "archive_size": 36
+      },
+      {
+        "gen": 12,
+        "best_reward": -190.65597534179688,
+        "avg_reward": -197.03869120279947,
+        "pop_valid": 30,
+        "avg_novelty": 0.02789561514897893,
+        "archive_size": 40
+      },
+      {
+        "gen": 13,
+        "best_reward": -190.65597534179688,
+        "avg_reward": -196.4837381998698,
+        "pop_valid": 30,
+        "avg_novelty": 0.031915472634136674,
+        "archive_size": 42
+      },
+      {
+        "gen": 14,
+        "best_reward": -190.65597534179688,
+        "avg_reward": -196.50374603271484,
+        "pop_valid": 30,
+        "avg_novelty": 0.03386055872154733,
+        "archive_size": 44
+      },
+      {
+        "gen": 15,
+        "best_reward": 97.19647216796875,
+        "avg_reward": -185.8968526204427,
+        "pop_valid": 30,
+        "avg_novelty": 0.059429679663541415,
+        "archive_size": 48
+      },
+      {
+        "gen": 16,
+        "best_reward": 114.93032836914062,
+        "avg_reward": -164.79336802164713,
+        "pop_valid": 30,
+        "avg_novelty": 0.07360303599076966,
+        "archive_size": 52
+      },
+      {
+        "gen": 17,
+        "best_reward": 120.26282501220703,
+        "avg_reward": -123.90508371988932,
+        "pop_valid": 30,
+        "avg_novelty": 0.039581045135855676,
+        "archive_size": 55
+      },
+      {
+        "gen": 18,
+        "best_reward": 123.38655853271484,
+        "avg_reward": 9.244251505533855,
+        "pop_valid": 30,
+        "avg_novelty": 0.027461461396887897,
+        "archive_size": 58
+      },
+      {
+        "gen": 19,
+        "best_reward": 123.38655853271484,
+        "avg_reward": 60.87426020304362,
+        "pop_valid": 30,
+        "avg_novelty": 0.01212114665346841,
+        "archive_size": 59
+      },
+      {
+        "gen": 20,
+        "best_reward": 123.38655853271484,
+        "avg_reward": 80.27735951741536,
+        "pop_valid": 30,
+        "avg_novelty": 0.011907246569171548,
+        "archive_size": 64
+      },
+      {
+        "gen": 21,
+        "best_reward": 123.38655853271484,
+        "avg_reward": 90.31135457356771,
+        "pop_valid": 30,
+        "avg_novelty": 0.010983717022463679,
+        "archive_size": 71
+      },
+      {
+        "gen": 22,
+        "best_reward": 123.38655853271484,
+        "avg_reward": 84.15895512898763,
+        "pop_valid": 30,
+        "avg_novelty": 0.014889429075022538,
+        "archive_size": 74
+      },
+      {
+        "gen": 23,
+        "best_reward": 123.38655853271484,
+        "avg_reward": 93.76835403442382,
+        "pop_valid": 30,
+        "avg_novelty": 0.009483715643485387,
+        "archive_size": 77
+      },
+      {
+        "gen": 24,
+        "best_reward": 123.38655853271484,
+        "avg_reward": 106.51858749389649,
+        "pop_valid": 30,
+        "avg_novelty": 0.007838379126042128,
+        "archive_size": 80
+      },
+      {
+        "gen": 25,
+        "best_reward": 123.38655853271484,
+        "avg_reward": 104.48998540242513,
+        "pop_valid": 30,
+        "avg_novelty": 0.007848217679808537,
+        "archive_size": 81
+      },
+      {
+        "gen": 26,
+        "best_reward": 124.6917724609375,
+        "avg_reward": 106.95125223795573,
+        "pop_valid": 30,
+        "avg_novelty": 0.009057955785344044,
+        "archive_size": 86
+      },
+      {
+        "gen": 27,
+        "best_reward": 124.6917724609375,
+        "avg_reward": 85.93814646402994,
+        "pop_valid": 30,
+        "avg_novelty": 0.009699367514501015,
+        "archive_size": 95
+      },
+      {
+        "gen": 28,
+        "best_reward": 124.6917724609375,
+        "avg_reward": 104.52037226359049,
+        "pop_valid": 30,
+        "avg_novelty": 0.00889204718793432,
+        "archive_size": 97
+      },
+      {
+        "gen": 29,
+        "best_reward": 124.82765197753906,
+        "avg_reward": 103.73575134277344,
+        "pop_valid": 30,
+        "avg_novelty": 0.006805483135394752,
+        "archive_size": 101
+      },
+      {
+        "gen": 30,
+        "best_reward": 124.82765197753906,
+        "avg_reward": 107.5501594543457,
+        "pop_valid": 30,
+        "avg_novelty": 0.006389433541335166,
+        "archive_size": 104
+      }
+    ]
+  }
+}

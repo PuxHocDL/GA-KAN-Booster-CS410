@@ -1,0 +1,7 @@
+Dataset: Circles
+Task Type: classification
+Best Fitness (Loss): 0.0249
+Optimal Depth: 5
+Optimal Grid Value: 6
+
+Interpretability skipped.

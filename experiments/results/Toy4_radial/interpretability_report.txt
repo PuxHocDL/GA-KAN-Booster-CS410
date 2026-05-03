@@ -1,0 +1,7 @@
+Dataset: Toy4_radial
+Task Type: regression
+Best Fitness (Loss): 0.0032
+Optimal Depth: 5
+Optimal Grid Value: 55
+
+Interpretability skipped.

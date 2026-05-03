@@ -1,0 +1,7 @@
+Dataset: Rice
+Task Type: classification
+Best Fitness (Loss): 0.1857
+Optimal Depth: 3
+Optimal Grid Value: 4
+
+Interpretability skipped.
