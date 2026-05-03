@@ -256,7 +256,7 @@ def evaluate_spectral_fitness_rl(individual: SpectralChromosome, env_name: str,
                                 wrappers=[DiscretePendulumWrapper, PendulumTerminationWrapper])
         elif env_name == 'LunarLander-Wind':
             envs = gym.make_vec('LunarLander-v3', num_envs=N_steps, vectorization_mode=vectorization_mode,
-                                kwargs={'enable_wind': True, 'wind_power': 15.0, 'turbulence_power': 1.5})
+                                enable_wind=True, wind_power=15.0, turbulence_power=1.5)
         else:
             try:
                 envs = gym.make_vec(env_name, num_envs=N_steps, vectorization_mode=vectorization_mode)
