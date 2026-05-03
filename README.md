@@ -221,6 +221,22 @@ The novelty pressure drove the GA to discover the "swing" strategy at generation
 - **Pendulum-v1**: Continuous torque discretized to 5 actions. High variance (std=242) indicates policy is inconsistent but capable of near-perfect episodes (-3.5).
 - **LunarLander-Wind**: Standard LunarLander + stochastic wind (power=15, turbulence=1.5). Deeper 3-layer KAN needed (degree=3 sufficient). Mean=94.2 demonstrates robust landing despite wind disturbances.
 
+### Evolved KAN Architectures (Visualizations)
+
+Below are the Spectral GA-KAN policies evolved by the GA for 3 hard RL tasks. Each edge shows its learned Chebyshev activation function shape:
+
+**MountainCar-v0** — [2, 17, 3] deg=4 | Solved with Novelty Search (eval mean: -102.6)
+
+![MountainCar-v0 Architecture](experiments/results_spectral_novelty/MountainCar-v0/MountainCar-v0_architecture.png)
+
+**LunarLander-Wind** — [8, 9, 9, 4] deg=3 | Robust landing under stochastic wind (eval mean: 94.2)
+
+![LunarLander-Wind Architecture](experiments/results_spectral_novelty/LunarLander-Wind/LunarLander-Wind_architecture.png)
+
+**Pendulum-v1** — [3, 12, 5] deg=10 | Near-perfect swing-up episodes (best: -3.5)
+
+![Pendulum-v1 Architecture](experiments/results_spectral_novelty/Pendulum-v1/Pendulum-v1_architecture.png)
+
 ### Experiment Stages
 
 The RL experiments are organized in 5 incremental stages:
