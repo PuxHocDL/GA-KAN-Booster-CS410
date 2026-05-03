@@ -42,19 +42,32 @@ Standard KAN requires manual architecture specification (`[input, hidden..., out
 
 ### Results (16 datasets)
 
+**Classification** (accuracy, higher = better):
+
 | Dataset | SVM | RF | MLP | KNN | Standard KAN | GA-KAN |
 |---------|-----|----|----|-----|-------------|--------|
 | Iris | **1.00** | **1.00** | 0.63 | **1.00** | **1.00** | 0.97 |
 | Wine | **1.00** | **1.00** | 0.61 | 0.94 | **1.00** | **1.00** |
 | WDBC | **0.97** | 0.96 | **0.97** | 0.96 | 0.93 | 0.96 |
-| Banknote | **1.00** | 0.99 | 1.00 | **1.00** | **1.00** | **1.00** |
+| Digits | 0.98 | 0.97 | 0.92 | **0.99** | 0.97 | 0.89 |
+| Raisin | **0.88** | 0.86 | 0.85 | 0.84 | 0.82 | 0.86 |
 | Rice | **0.93** | 0.92 | 0.93 | 0.91 | 0.91 | 0.93 |
+| Banknote | **1.00** | 0.99 | 1.00 | **1.00** | **1.00** | **1.00** |
+| Glass | 0.70 | **0.86** | 0.49 | 0.67 | 0.79 | 0.74 |
 | Moons | **1.00** | **1.00** | **1.00** | **1.00** | **1.00** | **1.00** |
 | Circles | **1.00** | 0.99 | **1.00** | **1.00** | **1.00** | **1.00** |
-| Toy1 (Eq6a) | 0.026 | 0.016 | 0.486 | 0.025 | **5e-6** | 3.8e-4 |
-| Toy2 (Eq6b) | 0.003 | 8e-4 | 0.005 | 5e-4 | **5e-7** | 1.7e-4 |
+| **Avg** | 0.946 | **0.956** | 0.840 | 0.932 | 0.942 | 0.934 |
 
-*Classification: higher = better. Regression (Toy*): lower MSE = better.*
+**Regression** (MSE, lower = better):
+
+| Dataset | SVM | RF | MLP | KNN | Standard KAN | GA-KAN |
+|---------|-----|----|----|-----|-------------|--------|
+| Toy1 (Eq6a) | 0.026 | 0.016 | 0.486 | 0.025 | **5.5e-6** | 3.8e-4 |
+| Toy2 (Eq6b) | 0.003 | 8.4e-4 | 0.005 | 4.9e-4 | **4.6e-7** | 1.7e-4 |
+| Toy3 (sincos) | 0.003 | 0.004 | 0.022 | 0.006 | **4.1e-7** | 9.6e-4 |
+| Toy4 (radial) | 0.001 | 5.6e-4 | 0.055 | 6.1e-4 | **4.9e-6** | 2.5e-4 |
+| Diabetes | **0.415** | 0.493 | 0.770 | 0.483 | 0.864 | 0.868 |
+| **Avg** | **0.090** | 0.103 | 0.268 | 0.103 | 0.173 | 0.174 |
 
 **Key finding**: GA-KAN is competitive with sklearn baselines on classification tasks and significantly outperforms MLP. On symbolic regression, Standard KAN with hand-tuned architecture still wins (domain knowledge advantage), but GA-KAN closes the gap vs traditional ML.
 
