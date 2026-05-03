@@ -60,9 +60,9 @@ def main():
         max_gen = 5
         N_steps = 5
     else:
-        pop_size = 100
-        max_gen = 50
-        N_steps = 50
+        pop_size = 30
+        max_gen = 30
+        N_steps = 30
         
     results = []
     base_output_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'results')
@@ -117,14 +117,14 @@ def main():
         
         # Evaluate GA-KAN Best Individual
         best_model = build_optimal_model(best_ind, device=device)
-        print("Training final GA-KAN architecture...")
+        print("Training final GA-KAN architecture (LBFGS, 50 steps)...")
         opt = torch.optim.LBFGS(best_model.parameters(), lr=0.1)
         if task_type == 'classification':
             criterion = torch.nn.CrossEntropyLoss()
         else:
             criterion = torch.nn.MSELoss()
             
-        for t in range(N_steps):
+        for t in range(50):
             def closure():
                 opt.zero_grad()
                 pred = best_model(D_train['train_input'])

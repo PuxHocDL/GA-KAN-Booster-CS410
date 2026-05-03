@@ -5,10 +5,12 @@ import warnings
 
 from .chromosome import Chromosome, is_valid_topology
 
-def evaluate_fitness(individual: Chromosome, D_train, D_val, task_type='regression', N_steps=20, device='cpu'):
+def evaluate_fitness(individual: Chromosome, D_train, D_val, task_type='regression', N_steps=20, device='cpu', use_adam=True):
     """
     Evaluates the fitness of an individual chromosome.
     Fitness is the minimum validation loss achieved during training.
+    
+    use_adam: If True, use Adam (faster for GA search phase). If False, use LBFGS (for final model).
     """
     # 1. Decode
     target_depth, grid_value, active_masks = individual.decode()
@@ -26,13 +28,11 @@ def evaluate_fitness(individual: Chromosome, D_train, D_val, task_type='regressi
         
     try:
         # 3. Build Model
-        # MultKAN can be imported from kan
         model = KAN(width=width, grid=grid_value, k=3, seed=42, device=device, auto_save=False)
         
         # Inject the decoded topology masks into the model
         for l in range(target_depth):
             mask_tensor = torch.tensor(active_masks[l], dtype=torch.float32, device=device)
-            # PyKAN's KANLayer has a mask attribute of shape (in_dim, out_dim)
             model.act_fun[l].mask.data = mask_tensor
             
     except Exception as e:
@@ -42,33 +42,49 @@ def evaluate_fitness(individual: Chromosome, D_train, D_val, task_type='regressi
     # 4. Train Model
     min_loss = float('inf')
     
-    # LBFGS Optimizer as requested
     def train():
-        optimizer = torch.optim.LBFGS(model.parameters(), lr=0.1)
-        
+        nonlocal min_loss
         # Select loss function
         if task_type == 'classification':
             criterion = torch.nn.CrossEntropyLoss()
         else:
             criterion = torch.nn.MSELoss()
-            
-        for t in range(N_steps):
-            def closure():
+        
+        if use_adam:
+            # Adam: much faster per step, good enough for topology search
+            optimizer = torch.optim.Adam(model.parameters(), lr=1e-2)
+            for t in range(N_steps):
                 optimizer.zero_grad()
                 pred = model(D_train['train_input'])
                 train_loss = criterion(pred, D_train['train_label'])
                 train_loss.backward()
-                return train_loss
+                optimizer.step()
                 
-            optimizer.step(closure)
-            
-            # Validation
-            with torch.no_grad():
-                val_pred = model(D_val['test_input'])
-                val_loss = criterion(val_pred, D_val['test_label']).item()
-                nonlocal min_loss
-                if val_loss < min_loss:
-                    min_loss = val_loss
+                # Validation every 5 steps to save time
+                if t % 5 == 0 or t == N_steps - 1:
+                    with torch.no_grad():
+                        val_pred = model(D_val['test_input'])
+                        val_loss = criterion(val_pred, D_val['test_label']).item()
+                        if val_loss < min_loss:
+                            min_loss = val_loss
+        else:
+            # LBFGS: more accurate but slower, used for final training
+            optimizer = torch.optim.LBFGS(model.parameters(), lr=0.1)
+            for t in range(N_steps):
+                def closure():
+                    optimizer.zero_grad()
+                    pred = model(D_train['train_input'])
+                    train_loss = criterion(pred, D_train['train_label'])
+                    train_loss.backward()
+                    return train_loss
+                    
+                optimizer.step(closure)
+                
+                with torch.no_grad():
+                    val_pred = model(D_val['test_input'])
+                    val_loss = criterion(val_pred, D_val['test_label']).item()
+                    if val_loss < min_loss:
+                        min_loss = val_loss
                     
     try:
         train()

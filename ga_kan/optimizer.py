@@ -44,12 +44,20 @@ class GAKANOptimizer:
         """
         self.initialize_population()
         
+        # Use Adam for GA search phase (much faster), LBFGS only for final model
+        use_adam = True
+        
         pbar = tqdm(range(self.max_gen), desc="GA Optimization", unit="gen")
         for gen in pbar:
-            # Evaluate fitness in parallel to maximize GPU utilization safely
-            with concurrent.futures.ThreadPoolExecutor(max_workers=min(os.cpu_count() or 4, 16)) as executor:
-                futures = [executor.submit(evaluate_fitness, ind, D_train, D_val, self.task_type, self.N_steps, self.device) for ind in self.population]
-                fitnesses = [f.result() for f in futures]
+            # GPU: run sequentially (GPU handles parallelism internally)
+            # CPU: run in parallel with ThreadPoolExecutor
+            if 'cuda' in self.device:
+                fitnesses = [evaluate_fitness(ind, D_train, D_val, self.task_type, self.N_steps, self.device, use_adam=use_adam) for ind in self.population]
+            else:
+                n_workers = min(os.cpu_count() or 4, 8)
+                with concurrent.futures.ThreadPoolExecutor(max_workers=n_workers) as executor:
+                    futures = [executor.submit(evaluate_fitness, ind, D_train, D_val, self.task_type, self.N_steps, self.device, use_adam=use_adam) for ind in self.population]
+                    fitnesses = [f.result() for f in futures]
                 
             for ind, fit in zip(self.population, fitnesses):
                 if fit < self.best_fitness:
