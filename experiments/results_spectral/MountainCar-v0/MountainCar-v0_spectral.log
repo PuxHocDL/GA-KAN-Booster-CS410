@@ -1,0 +1,52 @@
+2026-05-02 16:27:28,604 | ============================================================
+2026-05-02 16:27:28,604 | Spectral GA-KAN Experiment: MountainCar-v0
+2026-05-02 16:27:28,605 | ============================================================
+2026-05-02 16:27:28,606 | Config: obs=2, act=3, d_max=4, u_max=16, degree_max=10
+2026-05-02 16:27:28,606 | Chromosome length: 602 bits
+2026-05-02 16:27:28,607 | Population: 30, Generations: 25
+2026-05-02 16:27:28,607 | Train iters: new=15, elite=40
+2026-05-02 16:27:46,533 | Gen 1/25 | Best Reward: -196.04 | Avg Reward: -198.70 | Valid: 30/30
+2026-05-02 16:27:58,457 | Gen 2/25 | Best Reward: -195.81 | Avg Reward: -198.45 | Valid: 30/30
+2026-05-02 16:28:07,085 | Gen 3/25 | Best Reward: -195.81 | Avg Reward: -198.43 | Valid: 30/30
+2026-05-02 16:28:16,398 | Gen 4/25 | Best Reward: -195.54 | Avg Reward: -197.78 | Valid: 30/30
+2026-05-02 16:28:26,275 | Gen 5/25 | Best Reward: -195.54 | Avg Reward: -197.98 | Valid: 30/30
+2026-05-02 16:28:36,484 | Gen 6/25 | Best Reward: -195.54 | Avg Reward: -197.74 | Valid: 30/30
+2026-05-02 16:28:46,700 | Gen 7/25 | Best Reward: -195.54 | Avg Reward: -197.67 | Valid: 30/30
+2026-05-02 16:28:55,081 | Gen 8/25 | Best Reward: -195.54 | Avg Reward: -198.06 | Valid: 30/30
+2026-05-02 16:29:03,186 | Gen 9/25 | Best Reward: -195.54 | Avg Reward: -198.28 | Valid: 30/30
+2026-05-02 16:29:12,742 | Gen 10/25 | Best Reward: -195.54 | Avg Reward: -198.04 | Valid: 30/30
+2026-05-02 16:29:20,601 | Gen 11/25 | Best Reward: -195.15 | Avg Reward: -197.80 | Valid: 30/30
+2026-05-02 16:29:28,191 | Gen 12/25 | Best Reward: -195.15 | Avg Reward: -197.48 | Valid: 30/30
+2026-05-02 16:29:36,427 | Gen 13/25 | Best Reward: -195.15 | Avg Reward: -196.89 | Valid: 30/30
+2026-05-02 16:29:43,994 | Gen 14/25 | Best Reward: -195.15 | Avg Reward: -196.33 | Valid: 30/30
+2026-05-02 16:29:50,352 | Gen 15/25 | Best Reward: -195.15 | Avg Reward: -196.07 | Valid: 30/30
+2026-05-02 16:29:56,873 | Gen 16/25 | Best Reward: -195.14 | Avg Reward: -195.74 | Valid: 30/30
+2026-05-02 16:30:04,160 | Gen 17/25 | Best Reward: -195.14 | Avg Reward: -195.84 | Valid: 30/30
+2026-05-02 16:30:11,841 | Gen 18/25 | Best Reward: -195.14 | Avg Reward: -195.99 | Valid: 30/30
+2026-05-02 16:30:19,006 | Gen 19/25 | Best Reward: -195.14 | Avg Reward: -195.82 | Valid: 30/30
+2026-05-02 16:30:24,999 | Gen 20/25 | Best Reward: -195.14 | Avg Reward: -196.18 | Valid: 30/30
+2026-05-02 16:30:32,575 | Gen 21/25 | Best Reward: -194.61 | Avg Reward: -195.95 | Valid: 30/30
+2026-05-02 16:30:39,139 | Gen 22/25 | Best Reward: -194.61 | Avg Reward: -196.00 | Valid: 30/30
+2026-05-02 16:30:45,484 | Gen 23/25 | Best Reward: -194.61 | Avg Reward: -195.76 | Valid: 30/30
+2026-05-02 16:30:51,458 | Gen 24/25 | Best Reward: -194.61 | Avg Reward: -196.16 | Valid: 30/30
+2026-05-02 16:30:58,305 | Gen 25/25 | Best Reward: -194.61 | Avg Reward: -196.11 | Valid: 30/30
+2026-05-02 16:30:58,315 | 
+Optimization complete in 209.7s
+2026-05-02 16:30:58,318 | Best GA fitness (neg reward): 194.6105
+2026-05-02 16:30:58,318 | Best GA reward: -194.6105
+2026-05-02 16:30:58,319 | Best architecture: width=[2, 14, 3], degree=4
+2026-05-02 16:30:58,320 | Estimated params: 350
+2026-05-02 16:30:58,320 | 
+Running final evaluation (100 episodes, greedy)...
+2026-05-02 16:31:05,047 | Final Policy: mean=-200.00 ± 0.00, min=-200.00, max=-200.00
+2026-05-02 16:31:05,048 | 
+Saving model...
+2026-05-02 16:31:05,055 | Model saved to /__modal/volumes/vo-FFjTvIREqs5uPWSvFXC1EB/experiments/results_spectral/MountainCar-v0
+2026-05-02 16:31:05,056 | 
+Recording video of best policy...
+2026-05-02 16:31:08,624 | Videos saved to /__modal/volumes/vo-FFjTvIREqs5uPWSvFXC1EB/experiments/results_spectral/MountainCar-v0/videos
+2026-05-02 16:31:08,628 | Results saved to /__modal/volumes/vo-FFjTvIREqs5uPWSvFXC1EB/experiments/results_spectral/MountainCar-v0/MountainCar-v0_spectral_results.json
+2026-05-02 16:31:08,638 | 
+Spectral Energy Distribution:
+2026-05-02 16:31:08,638 |   Layer 0 (2→14): [T0=12.8377, T1=3.5294, T2=1.9220, T3=1.9988, T4=0.6932]
+2026-05-02 16:31:08,639 |   Layer 1 (14→3): [T0=4.6073, T1=1.1394, T2=1.3101, T3=0.8556, T4=1.6539]

@@ -355,8 +355,16 @@ def run_single_experiment(env_name: str, output_dir: str, num_workers=None):
             for layer_info in summary:
                 energy_str = ', '.join([f'T{i}={e:.4f}' for i, e in enumerate(layer_info['energy_per_degree'])])
                 logger.info(f"  Layer {layer_info['layer']} ({layer_info['shape']}): [{energy_str}]")
-        except:
-            pass
+            
+            # Save architecture visualization
+            from spectral_kan.visualization import plot_cheb_kan, plot_spectral_energy
+            arch_plot_path = os.path.join(output_dir, f'{env_name}_architecture.png')
+            plot_cheb_kan(model, title=f"Spectral GA-KAN Policy ({env_name})", save_path=arch_plot_path)
+            
+            energy_plot_path = os.path.join(output_dir, f'{env_name}_spectral_energy.png')
+            plot_spectral_energy(model, title=f"Spectral Energy ({env_name})", save_path=energy_plot_path)
+        except Exception as e:
+            logger.info(f"Visualization failed (non-critical): {e}")
     
     return results
 

@@ -15,7 +15,11 @@ from ga_kan.chromosome import ChromosomeConfig
 from ga_kan.genetic_operators import TournamentSelection, GAKANCrossover, BitFlipMutation
 from ga_kan.optimizer import GAKANOptimizer
 from ga_kan.fitness import build_optimal_model
-from experiments.data_loader import get_toy_dataset_1, get_toy_dataset_2, load_uci_classification
+from experiments.data_loader import (
+    get_toy_dataset_1, get_toy_dataset_2, get_toy_dataset_3, get_toy_dataset_4,
+    load_uci_classification, load_moons_dataset, load_circles_dataset,
+    load_diabetes_regression
+)
 from experiments.baselines import run_sklearn_baseline, run_standard_kan
 
 def main():
@@ -28,13 +32,27 @@ def main():
     print(f"Using device: {device}")
     
     datasets = [
+        # Classification - sklearn
         ('Iris', lambda: load_uci_classification('iris')),
         ('Wine', lambda: load_uci_classification('wine')),
+        ('WDBC', lambda: load_uci_classification('wdbc')),
+        ('Digits', lambda: load_uci_classification('digits')),
+        # Classification - UCI
         ('Raisin', lambda: load_uci_classification('raisin')),
         ('Rice', lambda: load_uci_classification('rice')),
-        ('WDBC', lambda: load_uci_classification('wdbc')),
-        ('Toy1 (Eq 6a)', get_toy_dataset_1),
-        ('Toy2 (Eq 6b)', get_toy_dataset_2)
+        ('Banknote', lambda: load_uci_classification('banknote')),
+        ('Seeds', lambda: load_uci_classification('seeds')),
+        ('Glass', lambda: load_uci_classification('glass')),
+        # Classification - synthetic
+        ('Moons', load_moons_dataset),
+        ('Circles', load_circles_dataset),
+        # Regression - toy
+        ('Toy1_Eq_6a', get_toy_dataset_1),
+        ('Toy2_Eq_6b', get_toy_dataset_2),
+        ('Toy3_sincos', get_toy_dataset_3),
+        ('Toy4_radial', get_toy_dataset_4),
+        # Regression - real
+        ('Diabetes', load_diabetes_regression),
     ]
     
     if args.fast:
@@ -146,13 +164,17 @@ def main():
                 
         # Save Plot
         try:
+            plot_path = os.path.join(dataset_dir, 'ga_kan_architecture.png')
             optimal_network.plot(folder=dataset_dir, title=f"GA-KAN Optimal ({name})")
-            plot_path = os.path.join(dataset_dir, 'optimal_network_overall.png')
-            plt.savefig(plot_path, dpi=300, bbox_inches='tight')
+            plt.savefig(plot_path, dpi=150, bbox_inches='tight')
             plt.close()
-            print(f"Plot saved in {dataset_dir}")
+            print(f"Architecture plot saved: {plot_path}")
         except Exception as e:
             print(f"Warning: Failed to plot network. {e}")
+            try:
+                plt.close('all')
+            except:
+                pass
 
         # 2. Run Baselines
         print("Running Baselines...")

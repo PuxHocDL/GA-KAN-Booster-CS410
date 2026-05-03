@@ -1,0 +1,39 @@
+2026-05-02 16:14:12,932 | ============================================================
+2026-05-02 16:14:12,932 | Spectral GA-KAN Experiment: CartPole-v1
+2026-05-02 16:14:12,933 | ============================================================
+2026-05-02 16:14:12,933 | Config: obs=4, act=2, d_max=4, u_max=16, degree_max=10
+2026-05-02 16:14:12,934 | Chromosome length: 618 bits
+2026-05-02 16:14:12,934 | Population: 20, Generations: 12
+2026-05-02 16:14:12,935 | Train iters: new=5, elite=20
+2026-05-02 16:14:24,844 | Gen 1/12 | Best Reward: 81.12 | Avg Reward: 27.04 | Valid: 20/20
+2026-05-02 16:14:34,815 | Gen 2/12 | Best Reward: 313.38 | Avg Reward: 81.53 | Valid: 20/20
+2026-05-02 16:14:50,631 | Gen 3/12 | Best Reward: 500.00 | Avg Reward: 147.20 | Valid: 20/20
+2026-05-02 16:15:07,733 | Gen 4/12 | Best Reward: 500.00 | Avg Reward: 191.81 | Valid: 20/20
+2026-05-02 16:15:20,011 | Gen 5/12 | Best Reward: 500.00 | Avg Reward: 162.07 | Valid: 20/20
+2026-05-02 16:15:33,382 | Gen 6/12 | Best Reward: 500.00 | Avg Reward: 137.56 | Valid: 20/20
+2026-05-02 16:15:45,742 | Gen 7/12 | Best Reward: 500.00 | Avg Reward: 217.76 | Valid: 20/20
+2026-05-02 16:16:00,784 | Gen 8/12 | Best Reward: 500.00 | Avg Reward: 363.82 | Valid: 20/20
+2026-05-02 16:16:14,256 | Gen 9/12 | Best Reward: 500.00 | Avg Reward: 319.12 | Valid: 20/20
+2026-05-02 16:16:31,318 | Gen 10/12 | Best Reward: 500.00 | Avg Reward: 447.27 | Valid: 20/20
+2026-05-02 16:16:47,895 | Gen 11/12 | Best Reward: 500.00 | Avg Reward: 432.64 | Valid: 20/20
+2026-05-02 16:17:04,766 | Gen 12/12 | Best Reward: 500.00 | Avg Reward: 400.86 | Valid: 20/20
+2026-05-02 16:17:04,773 | 
+Optimization complete in 171.8s
+2026-05-02 16:17:04,774 | Best GA fitness (neg reward): -500.0000
+2026-05-02 16:17:04,774 | Best GA reward: 500.0000
+2026-05-02 16:17:04,775 | Best architecture: width=[4, 8, 2], degree=10
+2026-05-02 16:17:04,776 | Estimated params: 528
+2026-05-02 16:17:04,777 | 
+Running final evaluation (100 episodes, greedy)...
+2026-05-02 16:17:23,477 | Final Policy: mean=438.66 ± 108.97, min=176.00, max=500.00
+2026-05-02 16:17:23,478 | 
+Saving model...
+2026-05-02 16:17:23,493 | Model saved to /__modal/volumes/vo-FFjTvIREqs5uPWSvFXC1EB/experiments/results_spectral/CartPole-v1
+2026-05-02 16:17:23,494 | 
+Recording video of best policy...
+2026-05-02 16:17:32,356 | Videos saved to /__modal/volumes/vo-FFjTvIREqs5uPWSvFXC1EB/experiments/results_spectral/CartPole-v1/videos
+2026-05-02 16:17:32,360 | Results saved to /__modal/volumes/vo-FFjTvIREqs5uPWSvFXC1EB/experiments/results_spectral/CartPole-v1/CartPole-v1_spectral_results.json
+2026-05-02 16:17:32,370 | 
+Spectral Energy Distribution:
+2026-05-02 16:17:32,371 |   Layer 0 (4→8): [T0=5.9436, T1=1.7057, T2=1.0865, T3=0.5632, T4=0.3208, T5=0.2212, T6=0.2096, T7=0.2520, T8=0.2022, T9=0.1873, T10=0.1036]
+2026-05-02 16:17:32,371 |   Layer 1 (8→2): [T0=2.4465, T1=0.3741, T2=0.3705, T3=0.1985, T4=0.2464, T5=0.2869, T6=0.2722, T7=0.2615, T8=0.1634, T9=0.1475, T10=0.0284]

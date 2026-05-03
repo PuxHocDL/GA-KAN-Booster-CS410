@@ -1,0 +1,110 @@
+{
+  "env_name": "CartPole-v1",
+  "method": "Spectral_GA_KAN",
+  "best_ga_reward": 500.0,
+  "final_eval": {
+    "mean": 438.66,
+    "std": 108.97001605946471,
+    "min": 176.0,
+    "max": 500.0,
+    "episodes": 100
+  },
+  "architecture": {
+    "width": [
+      4,
+      8,
+      2
+    ],
+    "degree": 10,
+    "depth": 2,
+    "estimated_params": 528
+  },
+  "config": {
+    "obs_dim": 4,
+    "act_dim": 2,
+    "max_steps": 500,
+    "n_train_iterations": 5,
+    "n_train_iterations_elite": 20,
+    "pop_size": 20,
+    "max_gen": 12,
+    "N_steps": 8,
+    "d_max": 4,
+    "u_max": 16,
+    "degree_max": 10
+  },
+  "time_seconds": 171.83798217773438,
+  "history": [
+    {
+      "gen": 1,
+      "best_reward": 81.125,
+      "avg_reward": 27.0375,
+      "pop_valid": 20
+    },
+    {
+      "gen": 2,
+      "best_reward": 313.375,
+      "avg_reward": 81.53125,
+      "pop_valid": 20
+    },
+    {
+      "gen": 3,
+      "best_reward": 500.0,
+      "avg_reward": 147.2,
+      "pop_valid": 20
+    },
+    {
+      "gen": 4,
+      "best_reward": 500.0,
+      "avg_reward": 191.80625,
+      "pop_valid": 20
+    },
+    {
+      "gen": 5,
+      "best_reward": 500.0,
+      "avg_reward": 162.075,
+      "pop_valid": 20
+    },
+    {
+      "gen": 6,
+      "best_reward": 500.0,
+      "avg_reward": 137.55625,
+      "pop_valid": 20
+    },
+    {
+      "gen": 7,
+      "best_reward": 500.0,
+      "avg_reward": 217.7625,
+      "pop_valid": 20
+    },
+    {
+      "gen": 8,
+      "best_reward": 500.0,
+      "avg_reward": 363.825,
+      "pop_valid": 20
+    },
+    {
+      "gen": 9,
+      "best_reward": 500.0,
+      "avg_reward": 319.11875,
+      "pop_valid": 20
+    },
+    {
+      "gen": 10,
+      "best_reward": 500.0,
+      "avg_reward": 447.26875,
+      "pop_valid": 20
+    },
+    {
+      "gen": 11,
+      "best_reward": 500.0,
+      "avg_reward": 432.64375,
+      "pop_valid": 20
+    },
+    {
+      "gen": 12,
+      "best_reward": 500.0,
+      "avg_reward": 400.8625,
+      "pop_valid": 20
+    }
+  ]
+}
